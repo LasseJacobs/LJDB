@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# IDE
+# specific to CodeBlocks IDE
+*.layout
+*.cbp
+*.depend
+# generated directories
+bin/
+obj/
+
