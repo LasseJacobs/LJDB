@@ -48,6 +48,8 @@ namespace core {
     {
         std::string old_filename = __translate_table_name(name);
         std::string new_filename = __translate_table_name(name, __removed_table_log_format);
+        if(!utils::file::exists(old_filename))
+            return Status::UNKNOWN_FAILURE;
         
         std::rename(old_filename.c_str(), new_filename.c_str());
         return Status::SUCCESS;
