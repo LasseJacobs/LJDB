@@ -68,6 +68,29 @@ void tabletests::test_try_create_existing_table() {
     }
 }
 
+void tabletests::test_rename_table() {
+    const std::string name = "cubes";
+    const std::string new_name = "squares";
+    const std::string table_template = "{edge:int}";
+    core::DbImp dbImp(TEST_DIR);
+    Status result = dbImp.create_table(name, table_template);
+    Status result2 = dbImp.rename_table(name, new_name);
+    if (result != Status::SUCCESS || !exists(new_name) ) {
+        CPPUNIT_ASSERT(false);
+    }
+}
+
+void tabletests::test_remove_table() {
+    const std::string name = "cubes";
+    const std::string table_template = "{edge:int}";
+    core::DbImp dbImp(TEST_DIR);
+    Status result = dbImp.create_table(name, table_template);
+    Status result2 = dbImp.remove_table(name);
+    if (result != Status::SUCCESS || exists(name) ) {
+        CPPUNIT_ASSERT(false);
+    }
+}
+
 bool tabletests::exists (const std::string& name) {
     std::string filename = utils::string::format(table_log_format, name);
     filename = utils::file::merge_filename(TEST_DIR, filename);
