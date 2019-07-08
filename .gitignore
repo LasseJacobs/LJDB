@@ -32,11 +32,19 @@
 *.app
 
 # IDE
-# specific to CodeBlocks IDE
-*.layout
-*.cbp
-*.depend
-# generated directories
-bin/
-obj/
 
+
+# NetBeans specific #
+nbproject/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+*.class
+
+*.jar
+*.war
+*.ear
