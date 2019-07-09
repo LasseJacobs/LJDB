@@ -16,15 +16,11 @@ namespace core {
             Status rename_table(const std::string& old_name, const std::string& new_name);
             Status remove_table(const std::string& name);
 
-            Status get(const std::string& table, const std::string& key, std::string& value);
+            Status get(const std::string& table, const std::string& key, std::string& value) const;
             Status put(const std::string& table, const std::string& key, const std::string& value);
             Status remove(const std::string& table, const std::string& key);
 
-        private:
-            std::string __translate_table_name(const std::string& name);
-            std::string __translate_table_name(const std::string& name, const std::string& format);
-
-            
+        private: 
             std::string __root;
 
     };

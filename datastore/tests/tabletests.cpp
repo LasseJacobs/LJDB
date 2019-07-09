@@ -38,7 +38,7 @@ void tabletests::setUp() {
 void tabletests::tearDown() {
     std::vector<std::string> file_list = get_file_list(TEST_DIR);
     for (auto const& filename : file_list) {
-        if(filename[0] == 'v') {
+        if(filename[0] == 'v' || filename[0] == 'r') {
             std::ostringstream oss;
             oss << std::time(0) << "-" << rand() % 1000000 << ".dump";
             std::rename(utils::file::merge_filename(TEST_DIR, filename).c_str(),

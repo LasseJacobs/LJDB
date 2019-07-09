@@ -20,14 +20,9 @@ class LJDB {
         virtual Status rename_table(const std::string& old_name, const std::string& new_name) = 0;
         virtual Status remove_table(const std::string& name) = 0;
 
-        virtual Status get(const std::string& table, const std::string& key, std::string& value) = 0;
+        virtual Status get(const std::string& table, const std::string& key, std::string& value) const = 0;
         virtual Status put(const std::string& table, const std::string& key, const std::string& value) = 0;
         virtual Status remove(const std::string& table, const std::string& key) = 0;
-
-    protected:
-        const std::string __table_log_format = "v_%s_log.table";
-        const std::string __removed_table_log_format = "r_%s_log.table";
-
 
 };
 
