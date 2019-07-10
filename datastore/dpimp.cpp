@@ -25,38 +25,46 @@ namespace core {
         table table_file(__root, name, table_template);
         if(!table_file.is_open())
             return Status::UNKNOWN_FAILURE;
-
-        return Status::SUCCESS;
-    }
-
-    Status DbImp::rename_table(const std::string& old_name, const std::string& new_name)
-    {
-        table table_file = table::open(__root, old_name);
-        table_file.rename(new_name);
-
+        
+        __open_tables.emplace(name, table_file);
         return Status::SUCCESS;
     }
 
     Status DbImp::remove_table(const std::string& name)
     {
-        table table_file = table::open(__root, name);
+        if(__open_tables.count(name) == 0)
+            __open_tables.emplace(name, table::open(__root, name));
+        
+        table table_file = __open_tables.find(name)->second;
         table_file.remove();
+        __open_tables.erase(name);
 
         return Status::SUCCESS;
     }
 
-    Status DbImp::get(const std::string& table, const std::string& key, std::string& value) const
+    Status DbImp::get(const std::string& table_name, const std::string& key, std::string& value) const
     {
+        if(__open_tables.count(table_name) == 0)
+            __open_tables.emplace(table_name, table::open(__root, table_name));
+        
         return Status::UNSUPPORTED;
     }
 
-    Status DbImp::put(const std::string& table, const std::string& key, const std::string& value)
+    Status DbImp::put(const std::string& table_name, const std::string& key, const std::string& value)
     {
-        return Status::UNSUPPORTED;
+        if(__open_tables.count(table_name) == 0)
+            __open_tables.emplace(table_name, table::open(__root, table_name));
+        
+        table table_file = __open_tables.find(table_name)->second;
+        if(!table_file.is_open())
+            std::cout<<"err not open" <<std::endl;
+        return table_file.put(key, value);
     }
 
-    Status DbImp::remove(const std::string& table, const std::string& key)
+    Status DbImp::remove(const std::string& table_name, const std::string& key)
     {
+        if(__open_tables.count(table_name) == 0)
+            __open_tables.emplace(table_name, table::open(__root, table_name));
         return Status::UNSUPPORTED;
     }
 }

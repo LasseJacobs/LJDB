@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <cstdio>
+#include <cstring>
 
 #include "table.h"
 #include "utils.h"
@@ -10,6 +11,13 @@
 
 
 namespace core {
+    
+    struct row {
+        static const size_t KEY_SIZE = 32;
+        char key_buffer[KEY_SIZE];
+        static const size_t VALUE_SIZE = 144;
+        char value_buffer[VALUE_SIZE];
+    };
     
     const std::string table::__table_log_format = "v_%s_log.table";
     const std::string table::__removed_table_log_format = "r_%s_log.table";
@@ -36,13 +44,13 @@ namespace core {
         if(utils::file::exists(filename))
             return;
         
-        __table_file = std::make_shared<std::ofstream>(filename);
+        __table_file = std::make_shared<std::ofstream>(filename, std::ofstream::binary);
         if(!__table_file->is_open()) {
             return;
         }
         
         //TODO: validate template <- this should probably happen before creating the file
-        __table_file->write(table_template.c_str(), table_template.size());
+        //__table_file->write(table_template.c_str(), table_template.size());
     }
     
     table::table(const table& other)
@@ -59,7 +67,8 @@ namespace core {
     
     table::~table() 
     {
-        //__table_file->close();
+        if(__table_file->is_open() && __table_file.use_count() == 0)
+            __table_file->close();
     }
 
     Status table::rename(const std::string& new_name)
@@ -87,6 +96,22 @@ namespace core {
         return __table_file->is_open();
     }
     
+    Status table::put(const std::string& key, const std::string& value)
+    {
+        row row_record;
+        std::memcpy(&row_record.key_buffer, key.c_str(), key.size() + 1);
+        std::memcpy(&row_record.value_buffer, value.c_str(), value.size() + 1);
+        
+        if(std::ios::failbit != 0)
+            std::cout<< "failsssss" <<std::endl;
+                
+        __table_file->write((char*)&row_record, sizeof(row_record));
+        if(__table_file->fail())
+            return Status::UNKNOWN_FAILURE;
+        
+        return Status::SUCCESS;
+    }
+    
     table::table(const std::string& root, const std::string& name)
     {
         __root = root;
@@ -97,7 +122,9 @@ namespace core {
             return;
         
         __table_file = std::make_shared<std::ofstream>();
-        __table_file->open(filename, std::ofstream::app);
+        __table_file->open(filename, std::ofstream::app | std::ofstream::binary);
+        if(!is_open())
+            std::cout<< "o!pen" <<std::endl;
     }
 
     std::string table::__translate_table_name(const std::string& name) const

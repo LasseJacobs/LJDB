@@ -17,7 +17,6 @@ class LJDB {
         //virtual Status remove_database(const std::string& name) = 0;
 
         virtual Status create_table(const std::string& name, const std::string& table_template) = 0;
-        virtual Status rename_table(const std::string& old_name, const std::string& new_name) = 0;
         virtual Status remove_table(const std::string& name) = 0;
 
         virtual Status get(const std::string& table, const std::string& key, std::string& value) const = 0;

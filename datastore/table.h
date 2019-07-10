@@ -32,6 +32,7 @@ namespace core {
         bool is_open();
         
         //read write ops
+        Status put(const std::string& key, const std::string& value);
         
     private:
         table(const std::string& root, const std::string& name);
