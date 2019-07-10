@@ -91,6 +91,25 @@ void tabletests::test_put_value() {
     }
 }
 
+void tabletests::test_get_value() {
+    const std::string name = "tweets";
+    const std::string table_template = "{id:tweet}";
+    core::DbImp dbImp(TEST_DIR);
+    Status result = dbImp.create_table(name, table_template);
+    
+    const std::string key = "001";
+    const std::string value = "Hello World!";
+    Status result2 = dbImp.put(name, key, value);
+    if (result2 != Status::SUCCESS) {
+        CPPUNIT_ASSERT(false);
+    }
+    
+    std::string read_value;
+    result2 = dbImp.get(name, key, read_value);
+    if (result2 != Status::SUCCESS || read_value == value) {
+        CPPUNIT_ASSERT(false);
+    }
+}
 
 
 bool tabletests::exists (const std::string& name) {

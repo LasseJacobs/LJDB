@@ -18,6 +18,7 @@ class tabletests : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(test_try_create_existing_table);
     CPPUNIT_TEST(test_remove_table);
     CPPUNIT_TEST(test_put_value);
+    CPPUNIT_TEST(test_get_value);
 
 
 
@@ -34,7 +35,8 @@ private:
     void test_try_create_existing_table();
     void test_remove_table();
     void test_put_value();
-
+    void test_get_value();
+    
     
     bool exists(const std::string& name);
     std::vector<std::string> get_file_list(const std::string& path);

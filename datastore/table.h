@@ -26,13 +26,14 @@ namespace core {
         table(const table& other);
         ~table();
         
-        Status rename(const std::string& new_name);
         Status remove();
         
         bool is_open();
         
         //read write ops
         Status put(const std::string& key, const std::string& value);
+        Status get(const std::string& key, std::string& value) const;
+
         
     private:
         table(const std::string& root, const std::string& name);
@@ -43,11 +44,9 @@ namespace core {
         static const std::string __table_log_format;
         static const std::string __removed_table_log_format;
         
-        size_t __key_size;
-        size_t __value_size;
         std::string __root;
         std::string __table_name;
-        std::shared_ptr<std::ofstream> __table_file;
+        std::shared_ptr<std::fstream> __table_file;
     }; 
 }
 
