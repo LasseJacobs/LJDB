@@ -33,6 +33,7 @@ namespace core {
         //read write ops
         Status put(const std::string& key, const std::string& value);
         Status get(const std::string& key, std::string& value) const;
+        Status remove(const std::string& key);
 
         
     private:

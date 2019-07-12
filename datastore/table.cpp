@@ -65,7 +65,7 @@ namespace core {
     
     table::~table() 
     {
-        if(__table_file->is_open() && __table_file.use_count() == 0)
+        if(__table_file->is_open() && __table_file.use_count() == 1)
             __table_file->close();
     }
     
@@ -106,23 +106,39 @@ namespace core {
         __table_file->seekg(0, std::ios::end);
         long cursor = (long)__table_file->tellg() - (long)sizeof(row); 
         
-        while(cursor < 0) 
+        while(cursor >= 0) 
         {
             __table_file->seekg(cursor);
             __table_file->read((char*)&row_record, sizeof(row));
             if(__table_file->fail())
                 return Status::UNKNOWN_FAILURE;
             
-            std::string current_key = row_record.key_buffer;
-            if(current_key == key)
+            if(row_record.value_buffer[0] == '\0')
+            {
+                return Status::CLIENT_ERROR;
+            }
+            else if(std::strcmp(row_record.key_buffer, key.c_str()) == 0)
             {
                 value = std::string(row_record.value_buffer);
-                break;
+                return Status::SUCCESS;
             }
             
             cursor -= sizeof(row);
         }
       
+        return Status::CLIENT_ERROR;
+    }
+    
+    Status table::remove(const std::string& key)
+    {
+        row row_record;
+        std::memcpy(&row_record.key_buffer, key.c_str(), key.size() + 1);
+        std::memset(&row_record.value_buffer, 0, row_record.VALUE_SIZE);
+                
+        __table_file->write((char*)&row_record, sizeof(row));
+        if(__table_file->fail())
+            return Status::UNKNOWN_FAILURE;
+        
         return Status::SUCCESS;
     }
 

@@ -106,7 +106,32 @@ void tabletests::test_get_value() {
     
     std::string read_value;
     result2 = dbImp.get(name, key, read_value);
-    if (result2 != Status::SUCCESS || read_value == value) {
+    if (result2 != Status::SUCCESS || read_value != value) {
+        CPPUNIT_ASSERT(false);
+    }
+}
+
+void tabletests::test_remove_value() {
+    const std::string name = "tweets";
+    const std::string table_template = "{id:tweet}";
+    core::DbImp dbImp(TEST_DIR);
+    Status result = dbImp.create_table(name, table_template);
+    
+    const std::string key = "R001";
+    const std::string value = "Hello World!";
+    Status result2 = dbImp.put(name, key, value);
+    if (result2 != Status::SUCCESS) {
+        CPPUNIT_ASSERT(false);
+    }
+
+    result2 = dbImp.remove(name, key);
+    if (result2 != Status::SUCCESS) {
+        CPPUNIT_ASSERT(false);
+    }
+    
+    std::string read_value;
+    result2 = dbImp.get(name, key, read_value);
+    if (result2 == Status::SUCCESS) {
         CPPUNIT_ASSERT(false);
     }
 }

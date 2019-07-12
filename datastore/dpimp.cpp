@@ -64,6 +64,8 @@ namespace core {
     {
         if(__open_tables.count(table_name) == 0)
             __open_tables.emplace(table_name, table::open(__root, table_name));
-        return Status::UNSUPPORTED;
+        
+        table table_file = __open_tables.find(table_name)->second;
+        return table_file.remove(key);
     }
 }
