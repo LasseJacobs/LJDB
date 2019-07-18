@@ -53,16 +53,7 @@ namespace core {
         //TODO: validate template <- this should probably happen before creating the file
         //__table_file->write(table_template.c_str(), table_template.size());
     }
-    
-    table::table(const table& other)
-    {
-        __root = other.__root;
-        __table_name = other.__table_name;
-        
-        __table_file = other.__table_file;
-    }
 
-    
     table::~table() 
     {
         if(__table_file->is_open() && __table_file.use_count() == 1)
@@ -92,17 +83,21 @@ namespace core {
         row row_record;
         std::memcpy(&row_record.key_buffer, key.c_str(), key.size() + 1);
         std::memcpy(&row_record.value_buffer, value.c_str(), value.size() + 1);
-                
+        
+        size_t pre_write_index = __table_file->tellp();
         __table_file->write((char*)&row_record, sizeof(row));
         if(__table_file->fail())
             return Status::UNKNOWN_FAILURE;
         
+        __key_index.emplace(key, pre_write_index);
+
         return Status::SUCCESS;
     }
     
     Status table::get(const std::string& key, std::string& value) const 
     {
         row row_record;
+        /*
         __table_file->seekg(0, std::ios::end);
         long cursor = (long)__table_file->tellg() - (long)sizeof(row); 
         
@@ -125,8 +120,18 @@ namespace core {
             
             cursor -= sizeof(row);
         }
-      
-        return Status::CLIENT_ERROR;
+        */
+        auto file_offset_iterator = __key_index.find(key);
+        if (file_offset_iterator == __key_index.end())
+            return Status::CLIENT_ERROR;
+        
+        __table_file->seekg(file_offset_iterator->second);
+        __table_file->read((char*)&row_record, sizeof(row));
+        if(__table_file->fail())
+            return Status::UNKNOWN_FAILURE;
+
+        value = std::string(row_record.value_buffer);
+        return Status::SUCCESS;
     }
     
     Status table::remove(const std::string& key)
@@ -139,6 +144,7 @@ namespace core {
         if(__table_file->fail())
             return Status::UNKNOWN_FAILURE;
         
+        __key_index.erase(key);
         return Status::SUCCESS;
     }
 
@@ -146,13 +152,33 @@ namespace core {
     {
         __root = root;
         __table_name = name;
-        
         std::string filename = __translate_table_name(name);
         if(!utils::file::exists(filename))
             return;
         
         __table_file = std::make_shared<std::fstream>();
         __table_file->open(filename, std::fstream::in | std::fstream::out | std::fstream::app | std::fstream::binary);
+        
+        row row_record;
+        __table_file->seekg(0, std::ios::beg);
+        while(!__table_file->eof())
+        {
+            size_t pre_read_pos = __table_file->tellg();
+            __table_file->read((char*)&row_record, sizeof(row));
+            if(__table_file->fail()) {
+                __table_file->close();
+                return;
+            }
+            
+            if(row_record.value_buffer[0] == '\0')
+            {
+                __key_index.erase(std::string(row_record.key_buffer));
+            }
+            else
+            {
+                __key_index.emplace(std::string(row_record.key_buffer), pre_read_pos);
+            }
+        }
     }
 
     std::string table::__translate_table_name(const std::string& name) const
