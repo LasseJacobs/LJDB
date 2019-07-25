@@ -11,6 +11,7 @@
 
 #include <cstring>
 #include <stdlib.h>
+#include <cstdint>
 
 namespace lsl 
 {
@@ -19,11 +20,18 @@ class span {
 public:
     span();
     span(std::size_t size);
+    span(const span& other);
+    span(span&& other);
     
-    span(const span& other) = delete;
-    span& operator=(const span& other) = delete;
+    span& operator=(const span& other);
+    span& operator=(span&& other);
     
     void copy(const void* source, std::size_t count);
+    void insert_copy(uint64_t index, const void* source, std::size_t count);
+    void insert_copy(char* pointer, const void* source, std::size_t count);
+    
+    void skip(std::size_t count);
+
     void clear();
     void clear(void* head);
     
@@ -40,10 +48,13 @@ private:
     char* __memory;
     std::size_t __allocated_capacity;
     
-    char* __head_pointer;
+    uint64_t __head_offset;
     
-    std::size_t __remaining_capacity() const;
-    void __reallocate(u_int32_t capacity);
+    void __mem_copy(uint64_t offset, const char* source, std::size_t count);
+    
+    bool __is_reallocation_needed(uint64_t offset, std::size_t count) const;
+    void __reallocate_for_atleast(uint64_t offset, std::size_t count);
+    void __reallocate(std::size_t capacity);
 };
 
 }

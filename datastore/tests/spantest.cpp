@@ -51,6 +51,50 @@ void spantest::test_big_copy()
     CPPUNIT_ASSERT(std::strcmp(span.begin(), buffer) == 0);
 }
 
+void spantest::test_multiple_copy()
+{
+    lsl::span span;
+    
+    const std::size_t size = 8; 
+    char buffer[size] = "bar";
+    
+    int repeat = 4;
+    for(int i = 0; i < repeat; i++)
+    {
+        span.copy(buffer, size);
+    }
+
+    
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", 4 * size, span.size());
+    CPPUNIT_ASSERT(std::strcmp(span.begin() + size, buffer) == 0);
+}
+
+void spantest::test_insert_copy()
+{
+    lsl::span span;
+    
+    const std::size_t size = 100; 
+    char buffer[size] = "this is a very long message that hopefully requires multiple resizes";
+    int offset = 10;
+    span.insert_copy(offset, buffer, size);
+    
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", offset + size, span.size());
+    CPPUNIT_ASSERT(std::strcmp(span.begin() + offset, buffer) == 0);
+}
+
+void spantest::test_insert_out_copy()
+{
+    lsl::span span;
+    
+    const std::size_t size = 100; 
+    char buffer[size] = "this is a very long message that hopefully requires multiple resizes";
+    int offset = 50;
+    span.insert_copy(offset, buffer, size);
+    
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", offset + size, span.size());
+    CPPUNIT_ASSERT(std::strcmp(span.begin() + offset, buffer) == 0);
+}
+
 void spantest::test_clear()
 {
     lsl::span span;
