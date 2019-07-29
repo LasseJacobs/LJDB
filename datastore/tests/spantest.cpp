@@ -8,6 +8,7 @@
 
 #include "spantest.h"
 #include "../span.h"
+#include "../span_streambuf.h"
 
 #include <cstring>
 #include <stdexcept>
@@ -33,7 +34,7 @@ void spantest::test_regular_copy()
     
     const std::size_t size = 10; 
     char buffer[size] = "foo";
-    span.copy(buffer, size);
+    span.append_copy(buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", size, span.size());
     CPPUNIT_ASSERT(std::strcmp(span.begin(), buffer) == 0);
@@ -45,7 +46,7 @@ void spantest::test_big_copy()
     
     const std::size_t size = 100; 
     char buffer[size] = "this is a very long message that hopefully requires multiple resizes";
-    span.copy(buffer, size);
+    span.append_copy(buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", size, span.size());
     CPPUNIT_ASSERT(std::strcmp(span.begin(), buffer) == 0);
@@ -61,9 +62,8 @@ void spantest::test_multiple_copy()
     int repeat = 4;
     for(int i = 0; i < repeat; i++)
     {
-        span.copy(buffer, size);
+        span.append_copy(buffer, size);
     }
-
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", 4 * size, span.size());
     CPPUNIT_ASSERT(std::strcmp(span.begin() + size, buffer) == 0);
@@ -101,7 +101,7 @@ void spantest::test_clear()
     
     const std::size_t size = 100; 
     char buffer[size] = "this is a very long message that hopefully requires multiple resizes";
-    span.copy(buffer, size);
+    span.append_copy(buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", size, span.size());
     span.clear(span.begin() + 10);
@@ -114,7 +114,7 @@ void spantest::test_false_clear()
     
     const std::size_t size = 100; 
     char buffer[size] = "this is a very long message that hopefully requires multiple resizes";
-    span.copy(buffer, size);
+    span.append_copy(buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", size, span.size());
     CPPUNIT_ASSERT_THROW(span.clear(buffer), std::range_error);
@@ -126,10 +126,27 @@ void spantest::test_clear_all()
     
     const std::size_t size = 100; 
     char buffer[size] = "this is a very long message that hopefully requires multiple resizes";
-    span.copy(buffer, size);
+    span.append_copy(buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", size, span.size());
     span.clear();
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", 0UL, span.size());
 }
 
+void spantest::test_stream_buffer()
+{
+    lsl::span span;
+    
+    const std::size_t size = 100; 
+    char buffer[size] = "this is a very long message that hopefully requires multiple resizes";
+    span.append_copy(buffer, size);
+
+    lsl::span_streambuf ssbuf(span);
+    std::istream in(&ssbuf);
+    
+    std::stringstream out;
+    for(char c; in.get(c); )
+        out << c;
+    
+    CPPUNIT_ASSERT(std::strcmp(buffer, out.str().c_str()) == 0);
+}

@@ -22,6 +22,9 @@ class spantest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(test_multiple_copy);
     CPPUNIT_TEST(test_insert_copy);
     CPPUNIT_TEST(test_insert_out_copy);
+    
+    CPPUNIT_TEST(test_stream_buffer);
+
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -37,6 +40,8 @@ private:
     void test_multiple_copy();
     void test_insert_copy();
     void test_insert_out_copy();
+    
+    void test_stream_buffer();
     
     void test_clear();
     void test_clear_all();

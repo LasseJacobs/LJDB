@@ -23,23 +23,25 @@ namespace lsl
     
     span::span() 
     {
-        __memory = new char[DEFAULT_CAPACITY];
+        __base_memory = new char[DEFAULT_CAPACITY];
+        __memory_start = __base_memory;
         __head_offset = 0;
         __allocated_capacity = DEFAULT_CAPACITY;
     }
 
     span::~span() 
     {
-        delete[] __memory;
+        delete[] __memory_start;
     }
     
     span::span(const span& other)
     {
-        __memory = new char[other.__allocated_capacity];
+        __base_memory = new char[other.__allocated_capacity];
+        __memory_start = __base_memory;
         __head_offset = other.__head_offset;
         __allocated_capacity = other.__allocated_capacity;
         
-        std::memcpy(__memory, other.__memory, other.size());
+        std::memcpy(__memory_start, other.__memory_start, other.size());
     }
     
     span::span(span&& other)
@@ -52,7 +54,7 @@ namespace lsl
         if (this != &other) 
         {
             clear();
-            copy(other.begin(), other.size());
+            append_copy(other.begin(), other.size());
         }
         return *this;
     }
@@ -61,20 +63,22 @@ namespace lsl
     {
         if (this != &other) 
         {
-            delete[] __memory;
+            delete[] __base_memory;
             
-            __memory = other.__memory;
+            __base_memory = other.__base_memory;
+            __memory_start = other.__memory_start;
             __head_offset = other.__head_offset;
             __allocated_capacity = other.__allocated_capacity;
-
-            other.__memory = nullptr;
+            
+            other.__base_memory = nullptr;
+            other.__memory_start = nullptr;
             other.__head_offset = 0;
             other.__allocated_capacity = 0;
         }
         return *this;
     }
     
-    void span::copy(const void* source, std::size_t count)
+    void span::append_copy(const void* source, std::size_t count)
     {
         __mem_copy(__head_offset, (char*)source, count);
     }
@@ -86,10 +90,10 @@ namespace lsl
     
     void span::insert_copy(char* pointer, const void* source, std::size_t count)
     {
-        if(pointer < __memory || pointer >= (__memory + __allocated_capacity))
+        if(pointer < __memory_start || pointer >= (__memory_start + __allocated_capacity))
             throw std::range_error("location out of range");
         
-        uint64_t offset = pointer - __memory;
+        uint64_t offset = pointer - __memory_start;
         __mem_copy(offset, (const char*)source, count);
     }
     
@@ -98,29 +102,40 @@ namespace lsl
         __head_offset += count;
     }
     
+    void span::shift(std::size_t count)
+    {
+        //bound check
+        if(count >= __allocated_capacity)
+            throw std::range_error("location out of range");
+        
+        __memory_start += count;
+        __head_offset -= count;
+        __allocated_capacity -= count;
+    }
+    
     void span::clear() 
     {
-        clear(__memory);
+        clear(__memory_start);
     }
     
     void span::clear(void* head) 
     {
         char* new_head = (char*)head;
-        if(new_head < __memory || new_head > __memory + __head_offset)
+        if(new_head < __memory_start || new_head > __memory_start + __head_offset)
             throw std::range_error("head out of range");
         
-        __head_offset = new_head - __memory;
+        __head_offset = new_head - __memory_start;
         //TODO: shrink if needed
     }
 
     char* span::begin()
     {
-        return __memory;
+        return __memory_start;
     }
     
     const char* span::begin() const
     {
-        return __memory;
+        return __memory_start;
     }
     
     std::size_t span::size() const
@@ -136,7 +151,7 @@ namespace lsl
         if((offset + count) > __head_offset)
             __head_offset = (offset + count);
         
-        char* destination = __memory + offset;
+        char* destination = __memory_start + offset;
         std::memcpy(destination, source, count);
     }
     
@@ -160,13 +175,14 @@ namespace lsl
         //to support both shrinking and increasing of capacity
         std::size_t old_offset = std::min(__head_offset, capacity);
         
-        char* new_capacity = new char[capacity];
-        std::memcpy(new_capacity, __memory, old_offset);
+        char* new_memory = new char[capacity];
+        std::memcpy(new_memory, __memory_start, old_offset);
         
-        delete[] __memory;
+        delete[] __base_memory;
         
        __head_offset = old_offset;
-       __memory = new_capacity;
+       __base_memory = new_memory;
+       __memory_start = new_memory;
        __allocated_capacity = capacity;       
     }
 

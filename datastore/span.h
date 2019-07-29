@@ -26,11 +26,12 @@ public:
     span& operator=(const span& other);
     span& operator=(span&& other);
     
-    void copy(const void* source, std::size_t count);
+    void append_copy(const void* source, std::size_t count);
     void insert_copy(uint64_t index, const void* source, std::size_t count);
     void insert_copy(char* pointer, const void* source, std::size_t count);
     
     void skip(std::size_t count);
+    void shift(std::size_t count);
 
     void clear();
     void clear(void* head);
@@ -39,13 +40,17 @@ public:
     const char* begin() const;
     std::size_t size() const;
     
+    //Shrink to fit and << operators maybe
+    
     virtual ~span();
 private:
     static const std::size_t DEFAULT_CAPACITY;
     static const float GROWTH_FACTOR;
     static const float SHRINK_THRESHOLD;
     
-    char* __memory;
+    char* __base_memory;
+    
+    char* __memory_start;
     std::size_t __allocated_capacity;
     
     uint64_t __head_offset;
