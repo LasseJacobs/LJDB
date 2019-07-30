@@ -150,3 +150,19 @@ void spantest::test_stream_buffer()
     
     CPPUNIT_ASSERT(std::strcmp(buffer, out.str().c_str()) == 0);
 }
+
+void spantest::test_stream_eof()
+{
+    lsl::span span;
+    
+    const std::size_t size = 100; 
+    char buffer[size] = "this is a very long message that hopefully requires multiple resizes";
+    span.append_copy(buffer, size);
+
+    lsl::span_streambuf ssbuf(span);
+    std::istream in(&ssbuf);
+    
+    in.read(buffer, size+10);
+    
+    CPPUNIT_ASSERT(in.eof());
+}
