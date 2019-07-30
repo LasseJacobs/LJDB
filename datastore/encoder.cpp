@@ -18,7 +18,7 @@
  *      [2:15] 2b: size of attribute
  *      [16:XX] 3: variable sized attribute
 */
-
+/*
 #include "encoder.h"
 #include <cstring>
 #include <stdlib.h>
@@ -76,3 +76,4 @@ namespace data
         return sizeof(header) + attribute.size();
     }
 }
+*/
