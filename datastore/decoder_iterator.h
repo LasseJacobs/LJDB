@@ -10,6 +10,7 @@
 #define DECODER_ITERATOR_H
 
 #include <istream>
+#include <iostream>
 
 
 #include "data.h"
@@ -43,7 +44,7 @@ public:
             
             char local_buffer[SINGLE_PASS_SIZE];
             __raw_source->read(local_buffer, SINGLE_PASS_SIZE);
-            if(__raw_source->fail())
+            if(__raw_source->fail() && !__raw_source->eof())
                 throw std::runtime_error("read failure");
             __buffer.append_copy(local_buffer, __raw_source->gcount());
         }
@@ -69,7 +70,9 @@ public:
         
         std::pair<K, V> decoded_pair;
         __unpack(key, key_att_header.size, decoded_pair.first);
-        __unpack(key, key_att_header.size, decoded_pair.second);        
+        __unpack(value, value_att_header.size, decoded_pair.second);    
+        
+        return decoded_pair;
     }
     
     bool has_next() const
@@ -93,7 +96,7 @@ private:
     }
     void __unpack(const char* ptr, std::size_t size, std::string& data_out)
     {
-        std::memcpy(&data_out, ptr, size);
+        data_out.assign(ptr, size);
     }
 
 };

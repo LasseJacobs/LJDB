@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdexcept>
 #include <cmath>
+#include <iostream>
 #include "span.h"
 #include "data.h"
 
@@ -41,7 +42,8 @@ public:
         bytes_encoded += __encode_attribute(record.first);
         bytes_encoded += __encode_attribute(record.second);
         
-        header_2.total_size = bytes_encoded;
+        header_2.total_size = bytes_encoded + sizeof(header_1) + sizeof(header_2);
+        header_2.RESERVED = 0;
         __buffer.insert_copy(sizeof(header_1), &header_2, sizeof(header_2));
         
         return {__buffer.begin(), __buffer.size()};
@@ -68,7 +70,7 @@ private:
         header.type = (uint8_t)attribute_type::STRING;
         header.size = attribute.size();
         __buffer.append_copy(&header, sizeof(header));
-        __buffer.append_copy(&attribute, attribute.size());
+        __buffer.append_copy(attribute.c_str(), attribute.size());
         
         return sizeof(header) + attribute.size();
     }
