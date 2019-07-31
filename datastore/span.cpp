@@ -23,21 +23,21 @@ namespace lsl
     
     span::span() 
     {
-        __base_memory = new char[DEFAULT_CAPACITY];
-        __memory_start = __base_memory;
+        ___freeable_base_memory = new char[DEFAULT_CAPACITY];
+        __memory_start = ___freeable_base_memory;
         __head_offset = 0;
         __allocated_capacity = DEFAULT_CAPACITY;
     }
 
     span::~span() 
     {
-        delete[] __memory_start;
+        delete[] ___freeable_base_memory;
     }
     
     span::span(const span& other)
     {
-        __base_memory = new char[other.__allocated_capacity];
-        __memory_start = __base_memory;
+        ___freeable_base_memory = new char[other.__allocated_capacity];
+        __memory_start = ___freeable_base_memory;
         __head_offset = other.__head_offset;
         __allocated_capacity = other.__allocated_capacity;
         
@@ -63,14 +63,14 @@ namespace lsl
     {
         if (this != &other) 
         {
-            delete[] __base_memory;
+            delete[] ___freeable_base_memory;
             
-            __base_memory = other.__base_memory;
+            ___freeable_base_memory = other.___freeable_base_memory;
             __memory_start = other.__memory_start;
             __head_offset = other.__head_offset;
             __allocated_capacity = other.__allocated_capacity;
             
-            other.__base_memory = nullptr;
+            other.___freeable_base_memory = nullptr;
             other.__memory_start = nullptr;
             other.__head_offset = 0;
             other.__allocated_capacity = 0;
@@ -109,8 +109,8 @@ namespace lsl
             throw std::range_error("location out of range");
         
         __memory_start += count;
-        __head_offset -= count;
         __allocated_capacity -= count;
+        __head_offset = std::max(__head_offset - count, 0UL);
     }
     
     void span::clear() 
@@ -178,10 +178,10 @@ namespace lsl
         char* new_memory = new char[capacity];
         std::memcpy(new_memory, __memory_start, old_offset);
         
-        delete[] __base_memory;
+        delete[] ___freeable_base_memory;
         
        __head_offset = old_offset;
-       __base_memory = new_memory;
+       ___freeable_base_memory = new_memory;
        __memory_start = new_memory;
        __allocated_capacity = capacity;       
     }

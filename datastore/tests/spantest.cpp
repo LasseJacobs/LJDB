@@ -162,7 +162,20 @@ void spantest::test_stream_eof()
     lsl::span_streambuf ssbuf(span);
     std::istream in(&ssbuf);
     
-    in.read(buffer, size+10);
+    in.read(buffer, size+5);
     
     CPPUNIT_ASSERT(in.eof());
+}
+
+void spantest::test_shift()
+{
+    lsl::span span;
+    
+    const std::size_t size = 100; 
+    char buffer[size] = "0 2 4 6 8 ";
+    span.append_copy(buffer, size);
+    CPPUNIT_ASSERT(*span.begin() == '0');
+    
+    span.shift(2);
+    CPPUNIT_ASSERT(*span.begin() == '2');
 }

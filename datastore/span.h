@@ -48,7 +48,7 @@ private:
     static const float GROWTH_FACTOR;
     static const float SHRINK_THRESHOLD;
     
-    char* __base_memory;
+    char* ___freeable_base_memory;
     
     char* __memory_start;
     std::size_t __allocated_capacity;
