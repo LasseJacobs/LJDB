@@ -24,7 +24,7 @@ namespace core {
         static bool exists(const std::string& root, const std::string& name);
         static table open(const std::string& root, const std::string& name);
         
-        table(const std::string& root, const std::string& name, const std::string& table_template);
+        table(const std::string& root, const std::string& name);
 
         ~table();
         
@@ -39,7 +39,7 @@ namespace core {
         
         
     private:
-        table(const std::string& root, const std::string& name);
+        table(const std::string& root, const std::string& name, bool __private);
         
         std::string __translate_table_name(const std::string& name) const;
         std::string __translate_table_name(const std::string& name, const std::string& format) const;

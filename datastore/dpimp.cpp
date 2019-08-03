@@ -17,12 +17,12 @@ namespace core {
         }
     }
 
-    Status DbImp::create_table(const std::string& name, const std::string& table_template)
+    Status DbImp::create_table(const std::string& name)
     {
         if(table::exists(__root, name))
             return Status::UNKNOWN_FAILURE;
         
-        table table_file(__root, name, table_template);
+        table table_file(__root, name);
         if(!table_file.is_open())
             return Status::UNKNOWN_FAILURE;
         

@@ -28,10 +28,10 @@ namespace core {
     
     table table::open(const std::string& root, const std::string& name)
     {
-        return table(root, name);
+        return table(root, name, true);
     }
 
-    table::table(const std::string& root, const std::string& name, const std::string& table_template)
+    table::table(const std::string& root, const std::string& name)
     {
         __root = root;
         __table_name = name;
@@ -44,9 +44,6 @@ namespace core {
         if(!__table_file->is_open()) {
             return;
         }
-        
-        //TODO: validate template <- this should probably happen before creating the file
-        //__table_file->write(table_template.c_str(), table_template.size());
     }
 
     table::~table() 
@@ -144,7 +141,7 @@ namespace core {
         return Status::SUCCESS;
     }
 
-    table::table(const std::string& root, const std::string& name)
+    table::table(const std::string& root, const std::string& name, bool __private)
     {
         __root = root;
         __table_name = name;

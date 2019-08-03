@@ -14,7 +14,7 @@ namespace core {
         public:
             DbImp(const std::string& root);
 
-            Status create_table(const std::string& name, const std::string& table_template);
+            Status create_table(const std::string& name);
             Status remove_table(const std::string& name);
 
             Status get(const std::string& table_name, const std::string& key, std::string& value) const;
