@@ -10,14 +10,22 @@
 
 namespace core {
 
-    DbImp::DbImp(const std::string& root) {
+    db_imp::db_imp(const std::string& root, const std::string& name) 
+    {
         __root = root;
-        if(__root == "/") {
+        __name = name;
+        if(__root == "/") 
+        {
             __root = "";
         }
     }
+    
+    const std::string& db_imp::database_name() const 
+    {
+        return __name;
+    }
 
-    Status DbImp::create_table(const std::string& name)
+    Status db_imp::create_table(const std::string& name)
     {
         if(table::exists(__root, name))
             return Status::UNKNOWN_FAILURE;
@@ -30,7 +38,7 @@ namespace core {
         return Status::SUCCESS;
     }
 
-    Status DbImp::remove_table(const std::string& name)
+    Status db_imp::remove_table(const std::string& name)
     {
         if(__open_tables.count(name) == 0)
             __open_tables.emplace(name, table::open(__root, name));
@@ -42,7 +50,7 @@ namespace core {
         return Status::SUCCESS;
     }
 
-    Status DbImp::get(const std::string& table_name, const std::string& key, std::string& value) const
+    Status db_imp::get(const std::string& table_name, const std::string& key, std::string& value) const
     {
         if(__open_tables.count(table_name) == 0)
             __open_tables.emplace(table_name, table::open(__root, table_name));
@@ -51,7 +59,7 @@ namespace core {
         return table_file.get(key, value);
     }
 
-    Status DbImp::put(const std::string& table_name, const std::string& key, const std::string& value)
+    Status db_imp::put(const std::string& table_name, const std::string& key, const std::string& value)
     {
         if(__open_tables.count(table_name) == 0)
             __open_tables.emplace(table_name, table::open(__root, table_name));
@@ -60,7 +68,7 @@ namespace core {
         return table_file.put(key, value);
     }
 
-    Status DbImp::remove(const std::string& table_name, const std::string& key)
+    Status db_imp::remove(const std::string& table_name, const std::string& key)
     {
         if(__open_tables.count(table_name) == 0)
             __open_tables.emplace(table_name, table::open(__root, table_name));

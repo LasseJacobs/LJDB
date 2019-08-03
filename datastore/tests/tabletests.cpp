@@ -50,7 +50,7 @@ void tabletests::tearDown() {
 void tabletests::test_create_table() {
     const std::string name = "cubes";
     const std::string table_template = "{edge:int}";
-    core::DbImp dbImp(TEST_DIR);
+    core::db_imp dbImp(TEST_DIR, "testDb");
     Status result = dbImp.create_table(name);
     if (result != Status::SUCCESS || !exists(name)) {
         CPPUNIT_ASSERT(false);
@@ -60,7 +60,7 @@ void tabletests::test_create_table() {
 void tabletests::test_try_create_existing_table() {
     const std::string name = "cubes";
     const std::string table_template = "{edge:int}";
-    core::DbImp dbImp(TEST_DIR);
+    core::db_imp dbImp(TEST_DIR, "testDb");
     Status result = dbImp.create_table(name);
     Status result2 = dbImp.create_table(name);
     if (result != Status::SUCCESS || result2 == Status::SUCCESS ) {
@@ -71,7 +71,7 @@ void tabletests::test_try_create_existing_table() {
 void tabletests::test_remove_table() {
     const std::string name = "cubes";
     const std::string table_template = "{edge:int}";
-    core::DbImp dbImp(TEST_DIR);
+    core::db_imp dbImp(TEST_DIR, "testDb");
     Status result = dbImp.create_table(name);
     Status result2 = dbImp.remove_table(name);
     if (result != Status::SUCCESS || exists(name) ) {
@@ -83,7 +83,7 @@ void tabletests::test_put_value() {
     const std::string name = "tweets";
     const std::string table_template = "{id:tweet}";
     
-    core::DbImp dbImp(TEST_DIR);
+    core::db_imp dbImp(TEST_DIR, "testDb");
     Status result = dbImp.create_table(name);
     Status result2 = dbImp.put(name, "001", "Hello World!");
     result2 = dbImp.put(name, "004", "Hello Web!");
@@ -97,7 +97,7 @@ void tabletests::test_put_value() {
 void tabletests::test_get_value() {
     const std::string name = "tweets";
     const std::string table_template = "{id:tweet}";
-    core::DbImp dbImp(TEST_DIR);
+    core::db_imp dbImp(TEST_DIR, "testDb");
     Status result = dbImp.create_table(name);
     
     const std::string key = "001";
@@ -117,7 +117,7 @@ void tabletests::test_get_value() {
 void tabletests::test_remove_value() {
     const std::string name = "tweets";
     const std::string table_template = "{id:tweet}";
-    core::DbImp dbImp(TEST_DIR);
+    core::db_imp dbImp(TEST_DIR, "testDb");
     Status result = dbImp.create_table(name);
     
     const std::string key = "R001";

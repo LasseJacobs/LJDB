@@ -10,9 +10,11 @@
 
 namespace core {
 
-    class DbImp : public LJDB {
+    class db_imp : public database {
         public:
-            DbImp(const std::string& root);
+            db_imp(const std::string& root, const std::string& name);
+            
+            const std::string& database_name() const;
 
             Status create_table(const std::string& name);
             Status remove_table(const std::string& name);
@@ -22,6 +24,7 @@ namespace core {
             Status remove(const std::string& table_name, const std::string& key);
 
         private: 
+            std::string __name;
             std::string __root;
             mutable std::unordered_map<std::string, table> __open_tables;
     };

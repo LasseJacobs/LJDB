@@ -9,12 +9,14 @@
 
 namespace core {
 
-class LJDB {
+class database {
     public:
         //Probably best to put these somewhere else
         //
         //virtual Status create_database(const std::string& name) = 0;
         //virtual Status remove_database(const std::string& name) = 0;
+        
+        virtual const std::string& database_name() const = 0;
 
         virtual Status create_table(const std::string& name) = 0;
         virtual Status remove_table(const std::string& name) = 0;
