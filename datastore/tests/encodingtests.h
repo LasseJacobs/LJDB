@@ -14,7 +14,7 @@
 class encodingtests : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(encodingtests);
     
-    CPPUNIT_TEST(test_encode_to_file);
+    //CPPUNIT_TEST(test_encode_to_file);
 
     CPPUNIT_TEST(test_encode_decode);
     CPPUNIT_TEST(test_encode_decode_group);

@@ -44,14 +44,15 @@ namespace core {
         std::string __translate_table_name(const std::string& name) const;
         std::string __translate_table_name(const std::string& name, const std::string& format) const;
                 
-        static const std::string __table_log_format;
-        static const std::string __removed_table_log_format;
+        static const std::string TABLE_LOG_FORMAT;
+        static const std::string REMOVED_TABLE_LOG_FORMAT;
+        static const std::string TOMBSTONE_TOKEN;
                 
         std::string __root;
         std::string __table_name;
         std::shared_ptr<std::fstream> __table_file;
         
-        std::unordered_map<std::string, size_t> __key_index;
+        std::unordered_map<std::string, uint32_t> __key_index;
         std::vector<std::string> __keys;
         int __count = 0;
     }; 

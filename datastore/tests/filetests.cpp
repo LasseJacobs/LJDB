@@ -32,10 +32,10 @@ void filetests::test_write_read()
 {
     std::string filename = TEST_DIR;
     filename = filename + "v_test.txt"; 
-    std::ofstream out(filename, std::ios::out | std::ios::binary);
-    std::ifstream in1(filename, std::ios::in | std::ios::binary);
-    std::ifstream in2(filename);
-    CPPUNIT_ASSERT_MESSAGE("failed to open files", out.is_open() && in1.is_open() && in2.is_open());
+    std::fstream out(filename, std::ios::in | std::ios::out | std::ios::app | std::ios::ate | std::ios::binary);
+    std::fstream in1(filename, std::ios::in | std::ios::out | std::ios::binary);
+    //std::ifstream in2(filename);
+    CPPUNIT_ASSERT_MESSAGE("failed to open files", out.is_open() && in1.is_open() /*&& in2.is_open()*/);
 
     char out_buffer[100] = {"test"}; 
     out.write(out_buffer, 100);

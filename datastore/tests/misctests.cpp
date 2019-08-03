@@ -10,9 +10,10 @@
 #include <iostream>
 #include <cstring>
 
+#define TEST_DIR "namespace/"
+
 
 CPPUNIT_TEST_SUITE_REGISTRATION(misctests);
-
 
 
 template<typename T>
@@ -100,5 +101,16 @@ void misctests::test_basic_V()
     uint16_t my_int;
     std::memcpy(&my_int, &binary_pair, 2);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("read failed 1", (uint16_t)42, my_int);
+}
+
+void misctests::test_basic_VI()
+{
+    std::string tombstone("\0\0\0\0", 4);
+    CPPUNIT_ASSERT_EQUAL(4UL, tombstone.size());
+}
+
+void misctests::test_io_I()
+{
+    
 }
 

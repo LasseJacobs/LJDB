@@ -19,6 +19,10 @@ class misctests : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(test_basic_III);
     CPPUNIT_TEST(test_basic_IV);
     CPPUNIT_TEST(test_basic_V);
+    CPPUNIT_TEST(test_basic_VI);
+
+    //CPPUNIT_TEST(test_io_I);
+    
 
 
     CPPUNIT_TEST_SUITE_END();
@@ -36,6 +40,9 @@ private:
     
     void test_basic_IV();
     void test_basic_V();
+    void test_basic_VI();
+    
+    void test_io_I();
 };
 
 #endif /* MISCTESTS_H */

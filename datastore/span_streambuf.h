@@ -23,7 +23,10 @@ public:
     
 protected:
     int underflow();
-    
+    pos_type seekpos(pos_type sp, std::ios_base::openmode which) override;
+    pos_type seekoff(off_type off,
+                 std::ios_base::seekdir dir,
+                 std::ios_base::openmode which = std::ios_base::in) override;
     
 };
 

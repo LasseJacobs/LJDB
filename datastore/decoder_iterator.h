@@ -23,10 +23,12 @@ namespace data
 template<typename K, typename V>
 class decoder_iterator {
 public:
-    decoder_iterator(std::istream* in)
+    decoder_iterator(std::istream* in, uint32_t offset = 0)
     {
         __bin_size_of_current = 0;
         __raw_source = in;
+        
+        __raw_source->seekg(offset);
     }
     
     std::pair<K, V> current() const

@@ -6,26 +6,21 @@
 
 #include "table.h"
 #include "utils.h"
+#include "encoder.h"
+#include "decoder_iterator.h"
 
 #include <iostream>
 
 
 namespace core {
-    
-    struct row {
-        static const size_t BASE_OFFSET = 0;
-        static const size_t KEY_SIZE = 32;
-        char key_buffer[KEY_SIZE];
-        static const size_t VALUE_SIZE = 144;
-        char value_buffer[VALUE_SIZE];
-    };
-    
-    const std::string table::__table_log_format = "v_%s_log.table";
-    const std::string table::__removed_table_log_format = "r_%s_log.table";
+        
+    const std::string table::TABLE_LOG_FORMAT = "v_%s_log.table";
+    const std::string table::REMOVED_TABLE_LOG_FORMAT = "r_%s_log.table";
+    const std::string table::TOMBSTONE_TOKEN = "\0\0\0\0";
 
     bool table::exists(const std::string& root, const std::string& name)
     {
-        std::string filename = utils::string::format(__table_log_format, name);
+        std::string filename = utils::string::format(TABLE_LOG_FORMAT, name);
         filename = utils::file::merge_filename(root, filename);
         
         return utils::file::exists(filename);
@@ -65,7 +60,7 @@ namespace core {
         __table_file->close();
         
         std::string old_filename = __translate_table_name(__table_name);
-        std::string new_filename = __translate_table_name(__table_name, __removed_table_log_format);
+        std::string new_filename = __translate_table_name(__table_name, REMOVED_TABLE_LOG_FORMAT);
         if(!utils::file::exists(old_filename))
             return Status::UNKNOWN_FAILURE;
         
@@ -80,12 +75,17 @@ namespace core {
     
     Status table::put(const std::string& key, const std::string& value)
     {
+        /*
         row row_record;
         std::memcpy(&row_record.key_buffer, key.c_str(), key.size() + 1);
         std::memcpy(&row_record.value_buffer, value.c_str(), value.size() + 1);
+        */
+        
+        data::encoder data_encoder;
+        data::blob encoded_pair = data_encoder.encode(std::make_pair(key, value));
         
         size_t pre_write_index = __table_file->tellp();
-        __table_file->write((char*)&row_record, sizeof(row));
+        __table_file->write(encoded_pair.data, encoded_pair.length);
         if(__table_file->fail())
             return Status::UNKNOWN_FAILURE;
         
@@ -96,7 +96,7 @@ namespace core {
     
     Status table::get(const std::string& key, std::string& value) const 
     {
-        row row_record;
+        //row row_record;
         /*
         __table_file->seekg(0, std::ios::end);
         long cursor = (long)__table_file->tellg() - (long)sizeof(row); 
@@ -125,25 +125,21 @@ namespace core {
         if (file_offset_iterator == __key_index.end())
             return Status::CLIENT_ERROR;
         
-        __table_file->seekg(file_offset_iterator->second);
-        __table_file->read((char*)&row_record, sizeof(row));
-        if(__table_file->fail())
+        try {
+            data::decoder_iterator<std::string, std::string> itr(__table_file.get(), file_offset_iterator->second);
+            value = itr.next().second;
+        } 
+        catch(const std::exception& e) {
             return Status::UNKNOWN_FAILURE;
-
-        value = std::string(row_record.value_buffer);
+        }
+                
         return Status::SUCCESS;
     }
     
     Status table::remove(const std::string& key)
     {
-        row row_record;
-        std::memcpy(&row_record.key_buffer, key.c_str(), key.size() + 1);
-        std::memset(&row_record.value_buffer, 0, row_record.VALUE_SIZE);
-                
-        __table_file->write((char*)&row_record, sizeof(row));
-        if(__table_file->fail())
-            return Status::UNKNOWN_FAILURE;
-        
+        put(key, TOMBSTONE_TOKEN);
+       
         __key_index.erase(key);
         return Status::SUCCESS;
     }
@@ -159,6 +155,7 @@ namespace core {
         __table_file = std::make_shared<std::fstream>();
         __table_file->open(filename, std::fstream::in | std::fstream::out | std::fstream::app | std::fstream::binary);
         
+        /*
         row row_record;
         __table_file->seekg(0, std::ios::beg);
         while(!__table_file->eof())
@@ -179,11 +176,37 @@ namespace core {
                 __key_index.emplace(std::string(row_record.key_buffer), pre_read_pos);
             }
         }
+        */
+        
+        data::decoder_iterator<std::string, std::string> itr(__table_file.get());
+        while(itr.has_next())
+        {
+            size_t pre_read_pos = __table_file->tellg();
+            
+            std::pair<std::string, std::string> row;
+            try {
+                row = itr.next();
+            }
+            catch(const std::exception& e) {
+                __table_file->close();
+                return;
+            }   
+            
+            if(row.second == TOMBSTONE_TOKEN)
+            {
+                __key_index.erase(row.first);
+            }
+            else
+            {
+                __key_index.emplace(row.first, pre_read_pos);
+            }
+        }
+        
     }
 
     std::string table::__translate_table_name(const std::string& name) const
     {
-        return __translate_table_name(name, __table_log_format);
+        return __translate_table_name(name, TABLE_LOG_FORMAT);
     }
     
     std::string table::__translate_table_name(const std::string& name, const std::string& format) const
