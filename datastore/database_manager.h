@@ -12,7 +12,7 @@
 #include <string>
 #include <memory>
 
-#include "dbinterface.h"
+#include "database.h"
 
 namespace core {
 

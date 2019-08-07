@@ -28,21 +28,20 @@ namespace core {
 
         ~table();
         
-        Status remove();
+        void delete_table();
         
-        bool is_open();
+        bool is_open() const;
         
         //read write ops
-        Status put(const std::string& key, const std::string& value);
-        Status get(const std::string& key, std::string& value) const;
-        Status remove(const std::string& key);
+        void put(const std::string& key, const std::string& value);
+        void get(const std::string& key, std::string& value) const;
+        void remove(const std::string& key);
         
         
     private:
-        table(const std::string& root, const std::string& name, bool __private);
+        table();
         
-        std::string __translate_table_name(const std::string& name) const;
-        std::string __translate_table_name(const std::string& name, const std::string& format) const;
+        static std::string __translate_table_name(const std::string& root, const std::string& name, const std::string& format = TABLE_LOG_FORMAT);
                 
         static const std::string TABLE_LOG_FORMAT;
         static const std::string REMOVED_TABLE_LOG_FORMAT;
@@ -51,10 +50,7 @@ namespace core {
         std::string __root;
         std::string __table_name;
         std::shared_ptr<std::fstream> __table_file;
-        
         std::unordered_map<std::string, uint32_t> __key_index;
-        std::vector<std::string> __keys;
-        int __count = 0;
     }; 
 }
 

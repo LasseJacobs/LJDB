@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 
-#include "dbinterface.h"
+#include "database.h"
 #include "table.h"
 
 
@@ -16,12 +16,12 @@ namespace core {
             
             const std::string& database_name() const;
 
-            Status create_table(const std::string& name);
-            Status remove_table(const std::string& name);
+            void create_table(const std::string& name);
+            void remove_table(const std::string& name);
 
-            Status get(const std::string& table_name, const std::string& key, std::string& value) const;
-            Status put(const std::string& table_name, const std::string& key, const std::string& value);
-            Status remove(const std::string& table_name, const std::string& key);
+            void get(const std::string& table_name, const std::string& key, std::string& value) const;
+            void put(const std::string& table_name, const std::string& key, const std::string& value);
+            void remove(const std::string& table_name, const std::string& key);
 
         private: 
             std::string __name;

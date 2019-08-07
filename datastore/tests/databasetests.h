@@ -27,9 +27,14 @@ public:
     void tearDown();
 
 private:
+    const std::string _test_db_name = "testDb";
+    
     void test_creation();
     void test_loading();
     void test_remove();
+    
+    std::vector<std::string> get_file_list(const std::string& path);
+
 };
 
 #endif /* DATABASETESTS_H */

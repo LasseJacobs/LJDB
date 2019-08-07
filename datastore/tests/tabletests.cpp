@@ -17,6 +17,7 @@
 #include "tabletests.h"
 #include "../dbimp.h"
 #include "../utils.h"
+#include "../database_exceptions.h"
 
 #define TEST_DIR "namespace/"
 
@@ -51,92 +52,75 @@ void tabletests::test_create_table() {
     const std::string name = "cubes";
     const std::string table_template = "{edge:int}";
     core::db_imp dbImp(TEST_DIR, "testDb");
-    Status result = dbImp.create_table(name);
-    if (result != Status::SUCCESS || !exists(name)) {
+    dbImp.create_table(name);
+    if (!exists(name)) {
         CPPUNIT_ASSERT(false);
     }
 }
 
 void tabletests::test_try_create_existing_table() {
-    const std::string name = "cubes";
+    const std::string name = "cubes_II";
     const std::string table_template = "{edge:int}";
     core::db_imp dbImp(TEST_DIR, "testDb");
-    Status result = dbImp.create_table(name);
-    Status result2 = dbImp.create_table(name);
-    if (result != Status::SUCCESS || result2 == Status::SUCCESS ) {
-        CPPUNIT_ASSERT(false);
-    }
+    dbImp.create_table(name);
+    CPPUNIT_ASSERT_THROW(dbImp.create_table(name), core::already_exists_exception);
 }
 
 void tabletests::test_remove_table() {
     const std::string name = "cubes";
     const std::string table_template = "{edge:int}";
     core::db_imp dbImp(TEST_DIR, "testDb");
-    Status result = dbImp.create_table(name);
-    Status result2 = dbImp.remove_table(name);
-    if (result != Status::SUCCESS || exists(name) ) {
-        CPPUNIT_ASSERT(false);
-    }
+    dbImp.create_table(name);
+    dbImp.remove_table(name);
+    CPPUNIT_ASSERT_MESSAGE("table still exists after remove", !exists(name));
 }
 
 void tabletests::test_put_value() {
     const std::string name = "tweets";
     const std::string table_template = "{id:tweet}";
     
+    const std::string key = "004";
+    const std::string value = "hello web";
+    
     core::db_imp dbImp(TEST_DIR, "testDb");
-    Status result = dbImp.create_table(name);
-    Status result2 = dbImp.put(name, "001", "Hello World!");
-    result2 = dbImp.put(name, "004", "Hello Web!");
-    result2 = dbImp.put(name, "007", "Hello Web 2!");
-
-    if (result2 != Status::SUCCESS) {
-        CPPUNIT_ASSERT(false);
-    }
+    dbImp.create_table(name);
+    dbImp.put(name, "001", "Hello World!");
+    dbImp.put(name, key, value);
+    dbImp.put(name, "007", "Hello Web 2!");
+    
+    std::string got_value;
+    dbImp.get(name, key, got_value);
+    CPPUNIT_ASSERT_EQUAL(value, got_value);
 }
 
 void tabletests::test_get_value() {
     const std::string name = "tweets";
     const std::string table_template = "{id:tweet}";
     core::db_imp dbImp(TEST_DIR, "testDb");
-    Status result = dbImp.create_table(name);
+    dbImp.create_table(name);
     
     const std::string key = "001";
     const std::string value = "Hello World!";
-    Status result2 = dbImp.put(name, key, value);
-    if (result2 != Status::SUCCESS) {
-        CPPUNIT_ASSERT(false);
-    }
+    dbImp.put(name, key, value);
        
     std::string read_value;
-    result2 = dbImp.get(name, key, read_value);
-    if (result2 != Status::SUCCESS || read_value != value) {
-        CPPUNIT_ASSERT(false);
-    }
+    dbImp.get(name, key, read_value);
+    CPPUNIT_ASSERT_EQUAL(value, read_value);
 }
 
 void tabletests::test_remove_value() {
     const std::string name = "tweets";
     const std::string table_template = "{id:tweet}";
     core::db_imp dbImp(TEST_DIR, "testDb");
-    Status result = dbImp.create_table(name);
+    dbImp.create_table(name);
     
     const std::string key = "R001";
     const std::string value = "Hello World!";
-    Status result2 = dbImp.put(name, key, value);
-    if (result2 != Status::SUCCESS) {
-        CPPUNIT_ASSERT(false);
-    }
-
-    result2 = dbImp.remove(name, key);
-    if (result2 != Status::SUCCESS) {
-        CPPUNIT_ASSERT(false);
-    }
+    dbImp.put(name, key, value);
+    dbImp.remove(name, key);
     
     std::string read_value;
-    result2 = dbImp.get(name, key, read_value);
-    if (result2 == Status::SUCCESS) {
-        CPPUNIT_ASSERT(false);
-    }
+    CPPUNIT_ASSERT_THROW(dbImp.get(name, key, read_value), core::expected_exception);
 }
 
 

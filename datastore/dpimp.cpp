@@ -5,6 +5,7 @@
 #include "dbimp.h"
 #include "table.h"
 #include "utils.h"
+#include "database_exceptions.h"
 
 #include <iostream>
 
@@ -25,55 +26,52 @@ namespace core {
         return __name;
     }
 
-    Status db_imp::create_table(const std::string& name)
+    void db_imp::create_table(const std::string& name)
     {
         if(table::exists(__root, name))
-            return Status::UNKNOWN_FAILURE;
+            throw already_exists_exception(name);
         
         table table_file(__root, name);
         if(!table_file.is_open())
-            return Status::UNKNOWN_FAILURE;
+            throw io_failure_exception("failed to create table structure");
         
         __open_tables.emplace(name, table_file);
-        return Status::SUCCESS;
     }
 
-    Status db_imp::remove_table(const std::string& name)
+    void db_imp::remove_table(const std::string& name)
     {
         if(__open_tables.count(name) == 0)
             __open_tables.emplace(name, table::open(__root, name));
         
         table& table_file = __open_tables.find(name)->second;
-        table_file.remove();
+        table_file.delete_table();
         __open_tables.erase(name);
-
-        return Status::SUCCESS;
     }
 
-    Status db_imp::get(const std::string& table_name, const std::string& key, std::string& value) const
+    void db_imp::get(const std::string& table_name, const std::string& key, std::string& value) const
     {
         if(__open_tables.count(table_name) == 0)
             __open_tables.emplace(table_name, table::open(__root, table_name));
         
         table& table_file = __open_tables.find(table_name)->second;
-        return table_file.get(key, value);
+        table_file.get(key, value);
     }
 
-    Status db_imp::put(const std::string& table_name, const std::string& key, const std::string& value)
+    void db_imp::put(const std::string& table_name, const std::string& key, const std::string& value)
     {
         if(__open_tables.count(table_name) == 0)
             __open_tables.emplace(table_name, table::open(__root, table_name));
         
         table& table_file = __open_tables.find(table_name)->second;
-        return table_file.put(key, value);
+        table_file.put(key, value);
     }
 
-    Status db_imp::remove(const std::string& table_name, const std::string& key)
+    void db_imp::remove(const std::string& table_name, const std::string& key)
     {
         if(__open_tables.count(table_name) == 0)
             __open_tables.emplace(table_name, table::open(__root, table_name));
         
         table& table_file = __open_tables.find(table_name)->second;
-        return table_file.remove(key);
+        table_file.remove(key);
     }
 }
