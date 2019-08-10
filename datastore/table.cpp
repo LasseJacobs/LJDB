@@ -139,7 +139,6 @@ namespace core {
     void table::remove(const std::string& key)
     {
         put(key, TOMBSTONE_TOKEN);
-       
         __key_index.erase(key);
     }
 

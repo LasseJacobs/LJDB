@@ -38,14 +38,15 @@ namespace core {
             throw io_failure_exception("failed to create database");
     }
     
-    void database_manager::load_database(const std::string& name)
+    database* database_manager::load_database(const std::string& name)
     {
         std::string db_dir = __pwd + name;
         if (!utils::file::exists_dir(db_dir)) {
             throw unknown_argument_exception(name);
         }
         
-        _current_database = std::make_unique<db_imp>(db_dir, name); 
+        _current_database = std::make_unique<db_imp>(db_dir, name);
+        return _current_database.get();
     }
     
     void database_manager::remove_database(const std::string& name)
@@ -60,7 +61,7 @@ namespace core {
         }
     }
 
-    const database* database_manager::current_database()
+    database* database_manager::current_database() const
     {
         if(!_current_database)
             throw std::runtime_error("no database loaded");

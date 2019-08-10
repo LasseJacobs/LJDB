@@ -10,22 +10,28 @@
 #define DBFACADE_H
 
 #include <string>
-#include "status.h"
+#include "database_manager.h"
+#include "database.h"
 
 
 class LJDBFacade {
-    public:
+public:
+
+    void create_database(const std::string& name);
+    void load_database(const std::string& name);
+    void remove_database(const std::string& name);
+
+    void create_table(const std::string& name);
+    void remove_table(const std::string& name);
+
+    void get(const std::string& table, const std::string& key, std::string& value) const;
+    void put(const std::string& table, const std::string& key, const std::string& value);
+    void remove(const std::string& table, const std::string& key);
+
+private:
+    core::database_manager __dbm;
+    core::database* __database; 
         
-        virtual core::Status create_database(const std::string& name) = 0;
-        virtual core::Status load_database(const std::string& name) = 0;
-        virtual core::Status remove_database(const std::string& name) = 0;
-
-        virtual core::Status create_table(const std::string& name) = 0;
-        virtual core::Status remove_table(const std::string& name) = 0;
-
-        virtual core::Status get(const std::string& table, const std::string& key, std::string& value) const = 0;
-        virtual core::Status put(const std::string& table, const std::string& key, const std::string& value) = 0;
-        virtual core::Status remove(const std::string& table, const std::string& key) = 0;
 
 };
 

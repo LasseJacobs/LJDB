@@ -22,6 +22,7 @@ namespace core {
     class table {
     public:
         static bool exists(const std::string& root, const std::string& name);
+        //rename to load
         static table open(const std::string& root, const std::string& name);
         
         table(const std::string& root, const std::string& name);
@@ -32,7 +33,7 @@ namespace core {
         
         bool is_open() const;
         
-        //read write ops
+        //read write ops -- log ops
         void put(const std::string& key, const std::string& value);
         void get(const std::string& key, std::string& value) const;
         void remove(const std::string& key);

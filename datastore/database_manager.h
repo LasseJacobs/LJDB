@@ -21,10 +21,10 @@ public:
     database_manager(const std::string& working_dir);
     
     void create_database(const std::string& name);
-    void load_database(const std::string& name);
+    database* load_database(const std::string& name);
     void remove_database(const std::string& name);
     
-    const database* current_database();
+    database* current_database() const;
     
 private:
     std::string __pwd;

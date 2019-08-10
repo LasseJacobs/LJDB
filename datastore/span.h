@@ -13,6 +13,16 @@
 #include <stdlib.h>
 #include <cstdint>
 
+/*
+ * TODO
+ * ----------
+ * [ ] Make thread-safe
+ * [ ] Implement some of the common stl operations
+ * [ ] Make shallow const copy operation (that allows the positioning data to change but not the underlying buffer) 
+ *
+ */
+
+
 namespace lsl 
 {
 
