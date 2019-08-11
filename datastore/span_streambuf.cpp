@@ -13,7 +13,7 @@ namespace lsl
 
     span_streambuf::span_streambuf(span& buf)
     {
-        setg(buf.begin(), buf.begin(), buf.begin() + buf.size());
+        setg(buf.begin_raw(), buf.begin_raw(), buf.begin_raw() + buf.size());
     }
 
     int span_streambuf::underflow() 

@@ -51,7 +51,7 @@ void encodingtests::test_encode_to_file()
     }
     
     std::ofstream out_file("__test.txt");
-    out_file.write(encoded_data_span.begin(), encoded_data_span.size());
+    out_file.write(encoded_data_span.begin_raw(), encoded_data_span.size());
 }
 
 void encodingtests::test_encode_decode() 

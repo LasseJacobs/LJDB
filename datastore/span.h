@@ -28,8 +28,11 @@ namespace lsl
 
 class span {
 public:
-    span();
-    span(std::size_t size);
+    typedef char* iterator;
+    typedef char const* const_iterator;
+    
+    span(std::size_t size = DEFAULT_CAPACITY);
+    span(const char* c_str);
     span(const span& other);
     span(span&& other);
     
@@ -46,11 +49,17 @@ public:
     void clear();
     void clear(void* head);
     
-    char* begin();
-    const char* begin() const;
+    char* begin_raw();
+    const char* begin_raw() const;
     std::size_t size() const;
     
-    //Shrink to fit and << operators maybe
+    iterator begin();
+    const_iterator begin() const;
+    
+    iterator end();
+    const_iterator end() const;
+    
+    //Shrink to fit, pre_allocate and << operators maybe
     
     virtual ~span();
 private:

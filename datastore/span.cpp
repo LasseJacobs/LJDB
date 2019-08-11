@@ -12,6 +12,7 @@
 
 
 #include <assert.h>
+#include <cstring>
 #include <iostream>
 #include <algorithm>
 
@@ -21,17 +22,23 @@ namespace lsl
     const float span::GROWTH_FACTOR = 1.5f;
     const float span::SHRINK_THRESHOLD = 0.1f;
     
-    span::span() 
+    span::span(std::size_t size) 
     {
-        ___freeable_base_memory = new char[DEFAULT_CAPACITY];
+        ___freeable_base_memory = new char[size];
         __memory_start = ___freeable_base_memory;
         __head_offset = 0;
-        __allocated_capacity = DEFAULT_CAPACITY;
+        __allocated_capacity = size;
     }
 
     span::~span() 
     {
         delete[] ___freeable_base_memory;
+    }
+    
+    span::span(const char* c_str) : span(std::strlen(c_str))
+    {
+        std::size_t len = std::strlen(c_str);
+        append_copy(c_str, len);
     }
     
     span::span(const span& other)
@@ -54,7 +61,7 @@ namespace lsl
         if (this != &other) 
         {
             clear();
-            append_copy(other.begin(), other.size());
+            append_copy(other.begin_raw(), other.size());
         }
         return *this;
     }
@@ -128,12 +135,12 @@ namespace lsl
         //TODO: shrink if needed
     }
 
-    char* span::begin()
+    char* span::begin_raw()
     {
         return __memory_start;
     }
     
-    const char* span::begin() const
+    const char* span::begin_raw() const
     {
         return __memory_start;
     }
@@ -141,6 +148,26 @@ namespace lsl
     std::size_t span::size() const
     {
         return __head_offset;
+    }
+    
+    span::iterator span::begin()
+    {
+        return __memory_start;
+    }
+    
+    span::const_iterator span::begin() const
+    {
+        return __memory_start;
+    }
+    
+    span::iterator span::end()
+    {
+        return __memory_start + size();
+    }
+    
+    span::const_iterator span::end() const
+    {
+        return __memory_start + size();
     }
     
     void span::__mem_copy(uint64_t offset, const char* source, std::size_t count)

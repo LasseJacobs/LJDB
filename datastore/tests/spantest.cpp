@@ -37,7 +37,7 @@ void spantest::test_regular_copy()
     span.append_copy(buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", size, span.size());
-    CPPUNIT_ASSERT(std::strcmp(span.begin(), buffer) == 0);
+    CPPUNIT_ASSERT(std::strcmp(span.begin_raw(), buffer) == 0);
 }
 
 void spantest::test_big_copy()
@@ -49,7 +49,7 @@ void spantest::test_big_copy()
     span.append_copy(buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", size, span.size());
-    CPPUNIT_ASSERT(std::strcmp(span.begin(), buffer) == 0);
+    CPPUNIT_ASSERT(std::strcmp(span.begin_raw(), buffer) == 0);
 }
 
 void spantest::test_multiple_copy()
@@ -66,7 +66,7 @@ void spantest::test_multiple_copy()
     }
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", 4 * size, span.size());
-    CPPUNIT_ASSERT(std::strcmp(span.begin() + size, buffer) == 0);
+    CPPUNIT_ASSERT(std::strcmp(span.begin_raw() + size, buffer) == 0);
 }
 
 void spantest::test_insert_copy()
@@ -79,7 +79,7 @@ void spantest::test_insert_copy()
     span.insert_copy(offset, buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", offset + size, span.size());
-    CPPUNIT_ASSERT(std::strcmp(span.begin() + offset, buffer) == 0);
+    CPPUNIT_ASSERT(std::strcmp(span.begin_raw() + offset, buffer) == 0);
 }
 
 void spantest::test_insert_out_copy()
@@ -92,7 +92,7 @@ void spantest::test_insert_out_copy()
     span.insert_copy(offset, buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", offset + size, span.size());
-    CPPUNIT_ASSERT(std::strcmp(span.begin() + offset, buffer) == 0);
+    CPPUNIT_ASSERT(std::strcmp(span.begin_raw() + offset, buffer) == 0);
 }
 
 void spantest::test_clear()
@@ -104,7 +104,7 @@ void spantest::test_clear()
     span.append_copy(buffer, size);
     
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", size, span.size());
-    span.clear(span.begin() + 10);
+    span.clear(span.begin_raw() + 10);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("size is not right", 10UL, span.size());
 }
 
@@ -174,8 +174,8 @@ void spantest::test_shift()
     const std::size_t size = 100; 
     char buffer[size] = "0 2 4 6 8 ";
     span.append_copy(buffer, size);
-    CPPUNIT_ASSERT(*span.begin() == '0');
+    CPPUNIT_ASSERT(*span.begin_raw() == '0');
     
     span.shift(2);
-    CPPUNIT_ASSERT(*span.begin() == '2');
+    CPPUNIT_ASSERT(*span.begin_raw() == '2');
 }

@@ -46,7 +46,7 @@ public:
         header_2.RESERVED = 0;
         __buffer.insert_copy(sizeof(header_1), &header_2, sizeof(header_2));
         
-        return {__buffer.begin(), __buffer.size()};
+        return {__buffer.begin_raw(), __buffer.size()};
     }  
     
 private:

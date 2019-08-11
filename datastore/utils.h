@@ -33,21 +33,41 @@ namespace utils {
     }
     
     namespace file {
-        inline bool exists (const std::string& filename) {
+        inline bool exists (const std::string& filename) 
+        {
             std::ifstream f(filename);
             return f.good();
         }
         
-        inline bool exists_dir(const std::string& dirname) {
+        inline bool exists_dir(const std::string& dirname) 
+        {
             struct stat st = {0};
             return (stat(dirname.c_str(), &st) != -1);
         }
         
-        inline std::string merge_filename (const std::string& prefix, const std::string& filename) {
+        inline std::string merge_filename (const std::string& prefix, const std::string& filename) 
+        {
             if (prefix != "" && prefix.back() != '/')
                 return prefix + '/' + filename;
                 
             return prefix + filename;
+        }
+    }
+    
+}
+
+namespace alg {
+
+    template<class InputIt, class T>
+    inline void iterate_until_not(InputIt& first, const InputIt& last, const T& value) 
+    {
+        while (first != last) 
+        {
+            if (*first != value) 
+            {
+                return;
+            }
+            ++first;
         }
     }
 }
