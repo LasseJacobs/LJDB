@@ -10,7 +10,7 @@
 #include "utils.h"
 #include <sstream>
 
-namespace interpreting {
+namespace eval {
     
     text_iterator::text_iterator(lsl::span::const_iterator begin, lsl::span::const_iterator end)
     {

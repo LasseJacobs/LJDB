@@ -52,7 +52,7 @@ public:
         }
         
         second_head_field size_header;
-        const char* reader = __buffer.begin() + sizeof(first_head_field);
+        const char* reader = __buffer.begin_raw() + sizeof(first_head_field);
         std::memcpy(&size_header, reader, sizeof(size_header));
         __bin_size_of_current = (std::size_t)size_header.total_size;
         reader += sizeof(second_head_field);

@@ -30,7 +30,7 @@ void text_iteratortest::tearDown() {
 void text_iteratortest::test_read() 
 {
     lsl::span buffer = "this is a sentence";
-    interpreting::text_iterator it(buffer.begin(), buffer.end());
+    eval::text_iterator it(buffer.begin(), buffer.end());
     
     int i = 0;
     while(it.has_next()) {
@@ -44,7 +44,7 @@ void text_iteratortest::test_read()
 void text_iteratortest::test_value_read()
 {
     lsl::span buffer = "  this is \"a sentence\" it is";
-    interpreting::text_iterator it(buffer.begin(), buffer.end());
+    eval::text_iterator it(buffer.begin(), buffer.end());
     
     int i = 0;
     while(it.has_next()) {
@@ -56,7 +56,7 @@ void text_iteratortest::test_value_read()
 void text_iteratortest::test_empty_value_read()
 {
     lsl::span buffer = "this is \"a sentence\" it \"\" word";
-    interpreting::text_iterator it(buffer.begin(), buffer.end());
+    eval::text_iterator it(buffer.begin(), buffer.end());
     
     int i = 0;
     while(it.has_next()) {

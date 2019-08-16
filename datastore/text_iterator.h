@@ -13,7 +13,7 @@
 #include "span.h"
 
 
-namespace interpreting {
+namespace eval {
 
 class text_iterator {
 public:

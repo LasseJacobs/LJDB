@@ -12,16 +12,13 @@
 #include <vector>
 #include <string>
 
-namespace interpreting {
+namespace eval {
 
-enum class statement_t {
-    META,
-    CONCRETE,
-    FAILURE
-};
 
 enum class command_t {
+    //META
     EXIT,
+    //NON-META
     CREATE_DATABASE,
     CREATE_TABLE,
     DELETE_DATABASE,
@@ -33,10 +30,8 @@ enum class command_t {
 };
 
 enum class error_t {
-    PARSING_ERROR,
-    ILLEGAL_CHARACTER_ERROR,
-    ARGUMENT_COUNT_ERROR,
-    PARENTHESIS_MISMATCH_ERROR
+    NONE,
+    PARSING_ERROR
 };
     
 class prepared_statement {
@@ -48,15 +43,14 @@ public:
     
     void add_argument(const std::string& arg);
     
-    statement_t statement_type() const;
     command_t command() const;
+    const std::string& argument(uint32_t index) const;
     
+    bool failed() const;
     error_t error_type() const;
     const std::string& cause() const;
     
-private:
-    statement_t __type;
-    
+private:    
     command_t __command;
     error_t __error;
     
