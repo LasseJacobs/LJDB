@@ -33,7 +33,11 @@ namespace core {
         
         table table_file(__root, name);
         if(!table_file.is_open())
-            throw io_failure_exception("failed to create table structure");
+            throw io_failure_exception(
+                    utils::string::format("failed to create table structure: %s", 
+                            utils::file::merge_filename(__root, name)
+                    )
+                );
         
         __open_tables.emplace(name, table_file);
     }

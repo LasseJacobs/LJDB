@@ -147,6 +147,7 @@ namespace eval {
     
     void command_parser::parse_arguments(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement, const std::string& pattern) const
     {
+        //TODO: this needs to get cleaned up
         unsigned int count = std::count(pattern.begin(), pattern.end(), ' ') + 1;
         for(unsigned int i = 0; i < count; i++)
         {
@@ -160,14 +161,17 @@ namespace eval {
             }
             
             char argument_char = pattern[2*i];
-            token_t next_token = tokens.front();
-            tokens.pop();
+            token_t next_token;
             switch (argument_char) {
                 case 'n':
+                    next_token = tokens.front();
+                    tokens.pop();
                     parse_name_argument(next_token, statement);
                     break;
 
                 case 'v':
+                    next_token = tokens.front();
+                    tokens.pop();
                     parse_value_argument(next_token, statement);
                     break;
                     
@@ -223,7 +227,7 @@ namespace eval {
     
     void command_parser::get_context(const std::map<std::string, std::string>& context, prepared_statement& statement) const
     {
-        auto result = context.find("context");
+        auto result = context.find("database");
         if(result == context.end())
         {
             statement.set_error(

@@ -1,14 +1,13 @@
 #include <iostream>
-#include "utils.h"
-#include "dbimp.h"
-#include "database_manager.h"
+
+#include "cli_client.h"
 
 using namespace std;
 
 int main()
 {    
-    const std::string name = "cubes";
-    const std::string table_template = "{edge:int}";
+    frontend::cli_client client("namespace/");
+    client.run();
     
     return 0;
 }

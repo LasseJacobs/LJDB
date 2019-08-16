@@ -1,6 +1,10 @@
 
 #include "dbfacade.h"
 
+LJDBFacade::LJDBFacade(const std::string& path) : __dbm(path)
+{
+    
+}
 
 void LJDBFacade::create_database(const std::string& name)
 {

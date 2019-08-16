@@ -79,6 +79,7 @@ namespace core {
         
         __table_file = std::make_shared<std::fstream>(filename, std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
         if(!__table_file->is_open()) {
+            //TODO throw excpetion here so callers dont need to
             return;
         }
     }

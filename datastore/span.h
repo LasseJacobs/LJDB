@@ -12,6 +12,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include <cstdint>
+#include <istream>
 
 /*
  * TODO
@@ -19,7 +20,7 @@
  * [ ] Make thread-safe
  * [ ] Implement some of the common stl operations
  * [ ] Make shallow const copy operation (that allows the positioning data to change but not the underlying buffer) 
- *
+ * [ ] Implement binary format stream out operator
  */
 
 
@@ -49,8 +50,10 @@ public:
     void clear();
     void clear(void* head);
     
+    //todo these can maybe be removed
     char* begin_raw();
     const char* begin_raw() const;
+    //
     std::size_t size() const;
     
     iterator begin();
@@ -61,8 +64,11 @@ public:
     
     //Shrink to fit, pre_allocate and << operators maybe
     
+    friend std::istream& operator>> (std::istream& in, span& buffer);
+    
     virtual ~span();
 private:
+    static const std::size_t STREAM_BUFFER_SIZE;
     static const std::size_t DEFAULT_CAPACITY;
     static const float GROWTH_FACTOR;
     static const float SHRINK_THRESHOLD;
@@ -75,6 +81,8 @@ private:
     uint64_t __head_offset;
     
     void __mem_copy(uint64_t offset, const char* source, std::size_t count);
+    
+    std::size_t __remaining_capacity() const;
     
     bool __is_reallocation_needed(uint64_t offset, std::size_t count) const;
     void __reallocate_for_atleast(uint64_t offset, std::size_t count);

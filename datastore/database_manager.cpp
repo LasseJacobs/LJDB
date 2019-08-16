@@ -33,7 +33,7 @@ namespace core {
             throw already_exists_exception(db_dir);
         }
         
-        int result = mkdir(db_dir.c_str(), 0666);
+        int result = mkdir(db_dir.c_str(), 0777);
         if(result == -1)
             throw io_failure_exception("failed to create database");
     }

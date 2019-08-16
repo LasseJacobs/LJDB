@@ -27,6 +27,7 @@ class spantest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(test_stream_buffer);
     CPPUNIT_TEST(test_stream_eof);
     
+    CPPUNIT_TEST(test_stream_in);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -51,6 +52,8 @@ private:
     void test_clear();
     void test_clear_all();
     void test_false_clear();
+    
+    void test_stream_in();
 };
 
 #endif /* SPANTEST_H */

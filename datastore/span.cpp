@@ -18,6 +18,7 @@
 
 namespace lsl
 {
+    const std::size_t span::STREAM_BUFFER_SIZE = 64;
     const std::size_t span::DEFAULT_CAPACITY = 16;
     const float span::GROWTH_FACTOR = 1.5f;
     const float span::SHRINK_THRESHOLD = 0.1f;
@@ -170,6 +171,18 @@ namespace lsl
         return __memory_start + size();
     }
     
+    std::istream& operator>> (std::istream& in, span& buffer)
+    {
+        char stream_buffer[span::STREAM_BUFFER_SIZE];
+        do 
+        {
+            in.getline(stream_buffer, span::STREAM_BUFFER_SIZE);
+            buffer.append_copy(stream_buffer, in.gcount());
+        } while(in.gcount() == span::STREAM_BUFFER_SIZE);
+        
+        return in;
+    }
+    
     void span::__mem_copy(uint64_t offset, const char* source, std::size_t count)
     {
         if(__is_reallocation_needed(offset, count))
@@ -180,6 +193,11 @@ namespace lsl
         
         char* destination = __memory_start + offset;
         std::memcpy(destination, source, count);
+    }
+
+    std::size_t span::__remaining_capacity() const 
+    {
+        return __allocated_capacity - __head_offset;
     }
     
     bool span::__is_reallocation_needed(uint64_t offset, std::size_t count) const

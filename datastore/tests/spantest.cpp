@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <stdexcept>
+#include <sstream>
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION(spantest);
@@ -179,3 +180,13 @@ void spantest::test_shift()
     span.shift(2);
     CPPUNIT_ASSERT(*span.begin_raw() == '2');
 }
+
+void spantest::test_stream_in()
+{
+    lsl::span span;
+    std::istringstream ss(std::string("this is a string"));
+    ss >> span;
+    
+    CPPUNIT_ASSERT(std::memcmp(ss.str().c_str(), span.begin_raw(), 16) == 0);
+}
+

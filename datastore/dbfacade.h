@@ -16,6 +16,7 @@
 
 class LJDBFacade {
 public:
+    LJDBFacade(const std::string& path);
 
     void create_database(const std::string& name);
     void load_database(const std::string& name);
