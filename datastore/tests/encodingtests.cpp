@@ -64,8 +64,7 @@ void encodingtests::test_encode_decode()
     encoded_data_span.append_copy(encoded_data.data, encoded_data.length);
     
     lsl::span_streambuf buff(encoded_data_span);
-    std::istream in_stream(&buff);
-    data::decoder_iterator<std::string, std::string> itr(&in_stream);
+    data::decoder_iterator<std::string, std::string> itr(std::make_shared<std::istream>(&buff));
     std::pair<std::string, std::string> decoded_pair = itr.next();
     
     CPPUNIT_ASSERT(plain_pair == decoded_pair);
@@ -90,8 +89,7 @@ void encodingtests::test_encode_decode_group()
     }
     
     lsl::span_streambuf buff(encoded_data_span);
-    std::istream in_stream(&buff);
-    data::decoder_iterator<std::string, std::string> itr(&in_stream);
+    data::decoder_iterator<std::string, std::string> itr(std::make_shared<std::istream>(&buff));
     for(int i = 0; i < plain_pairs.size(); i++)
     {
         std::pair<std::string, std::string> decoded_pair = itr.next();

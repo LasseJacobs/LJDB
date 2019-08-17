@@ -17,7 +17,6 @@ namespace core {
         
     const std::string table::TABLE_LOG_FORMAT = "v_%s_log.table";
     const std::string table::REMOVED_TABLE_LOG_FORMAT = "r_%s_log.table";
-    const std::string table::TOMBSTONE_TOKEN = "\0\0\0\0";
 
     bool table::exists(const std::string& root, const std::string& name)
     {
@@ -29,33 +28,29 @@ namespace core {
     
     table table::open(const std::string& root, const std::string& name)
     {
-        table new_table;
-        new_table.__root = root;
-        new_table.__table_name = name;
         std::string filename = __translate_table_name(root, name);
         if(!utils::file::exists(filename))
             throw unknown_argument_exception(name);
         
-        new_table.__table_file = std::make_shared<std::fstream>();
-        new_table.__table_file->open(filename, std::fstream::in | std::fstream::out | std::fstream::app | std::fstream::binary);
-        if(!new_table.__table_file->is_open())
-            throw io_failure_exception("could not open table structure");
+        table new_table;
+        new_table.__root = root;
+        new_table.__table_name = name;
+       
+        new_table.__main_log.open(filename);
         
-        data::decoder_iterator<std::string, std::string> itr(new_table.__table_file.get());
+        log::iterator itr = new_table.__main_log.begin();
         while(itr.has_next())
         {
-            size_t pre_read_pos = new_table.__table_file->tellg();
-            
+            size_t pre_read_pos = itr.current_position();
             std::pair<std::string, std::string> row;
             try {
                 row = itr.next();
             }
             catch(const std::exception& e) {
-                new_table.__table_file->close();
                 throw parse_failure_exception(filename, pre_read_pos);
             }   
             
-            if(row.second == TOMBSTONE_TOKEN)
+            if(row.second == log::TOMBSTONE_TOKEN)
             {
                 new_table.__key_index.erase(row.first);
             }
@@ -75,49 +70,21 @@ namespace core {
         
         std::string filename = __translate_table_name(root, name);
         if(utils::file::exists(filename))
-            return;
+            throw already_exists_exception(name);
         
-        __table_file = std::make_shared<std::fstream>(filename, std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
-        if(!__table_file->is_open()) {
-            //TODO throw excpetion here so callers dont need to
-            return;
-        }
-    }
-
-    table::~table() 
-    {
-        if(__table_file->is_open() && __table_file.use_count() == 1)
-            __table_file->close();
+        __main_log = log(filename);
     }
     
     void table::delete_table()
     {
-        __table_file->close();
-        
-        std::string old_filename = __translate_table_name(__root, __table_name);
-        std::string new_filename = __translate_table_name(__root, __table_name, REMOVED_TABLE_LOG_FORMAT);
-        if(!utils::file::exists(old_filename))
-            throw unknown_argument_exception(old_filename);
-        
-        std::rename(old_filename.c_str(), new_filename.c_str());
-    }
-    
-    bool table::is_open() const
-    {
-        return __table_file->is_open();
+        __main_log.delete_log();
+        __key_index.clear();
     }
     
     void table::put(const std::string& key, const std::string& value)
     {     
-        data::encoder data_encoder;
-        data::blob encoded_pair = data_encoder.encode(std::make_pair(key, value));
-        
-        size_t pre_write_index = __table_file->tellp();
-        __table_file->write(encoded_pair.data, encoded_pair.length);
-        if(__table_file->fail())
-            throw io_failure_exception();
-        
-        __key_index.emplace(key, pre_write_index);
+        uint32_t insert_index = __main_log.put(key, value); 
+        __key_index.emplace(key, insert_index);
 
     }
     
@@ -127,19 +94,12 @@ namespace core {
         if (file_offset_iterator == __key_index.end())
             throw unknown_argument_exception(key);
         
-        try {
-            data::decoder_iterator<std::string, std::string> itr(__table_file.get(), file_offset_iterator->second);
-            value = itr.next().second;
-        } 
-        catch(const std::exception& e) {
-            throw io_failure_exception();
-        }
-                
+        __main_log.get(file_offset_iterator->second, value);        
     }
     
     void table::remove(const std::string& key)
     {
-        put(key, TOMBSTONE_TOKEN);
+        __main_log.remove(key);
         __key_index.erase(key);
     }
 

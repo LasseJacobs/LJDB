@@ -33,9 +33,9 @@ namespace utils {
     }
     
     namespace file {
-        inline bool exists (const std::string& filename) 
+        inline bool exists(const std::string& path) 
         {
-            std::ifstream f(filename);
+            std::ifstream f(path);
             return f.good();
         }
         
@@ -45,12 +45,30 @@ namespace utils {
             return (stat(dirname.c_str(), &st) != -1);
         }
         
-        inline std::string merge_filename (const std::string& prefix, const std::string& filename) 
+        inline std::string merge_filename(const std::string& prefix, const std::string& filename) 
         {
             if (prefix != "" && prefix.back() != '/')
                 return prefix + '/' + filename;
                 
             return prefix + filename;
+        }
+        
+        inline std::string extract_filename(const std::string& path) 
+        {
+            auto const pos = path.find_last_of('/');
+            if(pos == std::string::npos)
+                return path;
+            
+            return path.substr(pos+1);
+        }
+        
+        inline std::string extract_directoy(const std::string& path) 
+        {
+            auto const pos = path.find_last_of('/');
+            if(pos == std::string::npos)
+                return path;
+            
+            return path.substr(0, pos);
         }
     }
     

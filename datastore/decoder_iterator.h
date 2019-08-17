@@ -11,6 +11,7 @@
 
 #include <istream>
 #include <iostream>
+#include <memory>
 
 
 #include "data.h"
@@ -23,7 +24,7 @@ namespace data
 template<typename K, typename V>
 class decoder_iterator {
 public:
-    decoder_iterator(std::istream* in, uint32_t offset = 0)
+    decoder_iterator(std::shared_ptr<std::istream> in, uint32_t offset = 0)
     {
         __bin_size_of_current = 0;
         __raw_source = in;
@@ -34,6 +35,11 @@ public:
     std::pair<K, V> current() const
     {
         return __current_data;
+    }
+    
+    uint32_t current_position() const
+    {
+        return __raw_source->tellg();
     }
     
     std::pair<K, V> next()
@@ -86,7 +92,7 @@ private:
     static const int SINGLE_PASS_SIZE = 512;
     
     lsl::span __buffer;
-    std::istream* __raw_source;
+    std::shared_ptr<std::istream> __raw_source;
     
     std::size_t __bin_size_of_current;
     std::pair<K, V> __current_data;

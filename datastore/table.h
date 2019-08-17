@@ -12,9 +12,8 @@
 #include<string>
 #include<memory>
 #include<unordered_map>
-#include<vector>
 
-#include"status.h"
+#include "log.h"
 
 
 namespace core {
@@ -26,18 +25,12 @@ namespace core {
         static table open(const std::string& root, const std::string& name);
         
         table(const std::string& root, const std::string& name);
-
-        ~table();
         
         void delete_table();
-        
-        bool is_open() const;
-        
-        //read write ops -- log ops
+                
         void put(const std::string& key, const std::string& value);
         void get(const std::string& key, std::string& value) const;
-        void remove(const std::string& key);
-        
+        void remove(const std::string& key);     
         
     private:
         table();
@@ -46,11 +39,11 @@ namespace core {
                 
         static const std::string TABLE_LOG_FORMAT;
         static const std::string REMOVED_TABLE_LOG_FORMAT;
-        static const std::string TOMBSTONE_TOKEN;
                 
         std::string __root;
         std::string __table_name;
-        std::shared_ptr<std::fstream> __table_file;
+        
+        log __main_log;
         std::unordered_map<std::string, uint32_t> __key_index;
     }; 
 }
