@@ -38,7 +38,6 @@ namespace core {
         if(!utils::file::exists(filename))
             throw unknown_argument_exception(filename);
         
-        __log_file = std::make_shared<std::fstream>();
         __log_file->open(filename, OPEN_LOG_MODE);
         if(!__log_file->is_open())
             throw io_failure_exception("could not open table structure");
@@ -46,16 +45,18 @@ namespace core {
     
     log::log()
     {
-        
+        __log_file = std::make_shared<std::fstream>();
+        __wrt_lock = std::make_shared<std::mutex>();
     }
 
     log::log(const std::string& filename)
     {
         __filename = filename;        
         if(utils::file::exists(filename))
-            return;
+            throw already_exists_exception(filename);
         
         __log_file = std::make_shared<std::fstream>(filename, OPEN_LOG_MODE);
+        __wrt_lock = std::make_shared<std::mutex>();
         if(!__log_file->is_open()) 
         {
             throw io_failure_exception("could not open table structure");
@@ -66,6 +67,7 @@ namespace core {
     {
         if(__log_file->is_open() && __log_file.use_count() == 1)
             __log_file->close();
+        
     }
     
     void log::delete_log()
@@ -97,11 +99,13 @@ namespace core {
         data::encoder data_encoder;
         data::blob encoded_pair = data_encoder.encode(std::make_pair(key, value));
         
+        __wrt_lock.get()->lock();
         size_t pre_write_index = __log_file->tellp();
         __log_file->write(encoded_pair.data, encoded_pair.length);
         if(__log_file->fail())
             throw io_failure_exception();
         
+        __wrt_lock.get()->unlock();
         return pre_write_index;
     }
     

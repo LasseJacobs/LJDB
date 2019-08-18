@@ -11,6 +11,7 @@
 
 #include<string>
 #include<memory>
+#include <mutex>
 
 #include "decoder_iterator.h"
 
@@ -48,6 +49,7 @@ private:
     static const std::ios_base::openmode READ_LOG_MODE;
 
     std::string __filename;
+    std::shared_ptr<std::mutex> __wrt_lock;
     std::shared_ptr<std::fstream> __log_file;
 };
 

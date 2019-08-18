@@ -59,8 +59,7 @@ void misctests::test_basic()
 
 void misctests::test_basic_II() 
 {
-    char* random_pointer = nullptr;
-    delete[] random_pointer;
+
 }
 
 void misctests::test_basic_III() 

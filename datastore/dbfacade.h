@@ -31,8 +31,7 @@ public:
 
 private:
     core::database_manager __dbm;
-    core::database* __database; 
-        
+    core::database* __database;      
 
 };
 
