@@ -55,7 +55,7 @@ namespace core {
         if(utils::file::exists(filename))
             throw already_exists_exception(filename);
         
-        __log_file = std::make_shared<std::fstream>(filename, OPEN_LOG_MODE);
+        __log_file = std::make_shared<std::fstream>(filename, NEW_LOG_MODE);
         __wrt_lock = std::make_shared<std::mutex>();
         if(!__log_file->is_open()) 
         {
@@ -105,6 +105,7 @@ namespace core {
         if(__log_file->fail())
             throw io_failure_exception();
         
+        __log_file->flush();
         __wrt_lock.get()->unlock();
         return pre_write_index;
     }
