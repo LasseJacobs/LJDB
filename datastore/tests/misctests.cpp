@@ -9,6 +9,7 @@
 #include "misctests.h"
 #include <iostream>
 #include <cstring>
+#include "../span.h"
 
 #define TEST_DIR "namespace/"
 

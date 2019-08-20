@@ -26,10 +26,11 @@ class decoder_iterator {
 public:
     decoder_iterator(std::shared_ptr<std::istream> in, uint32_t offset = 0)
     {
-        __bin_size_of_current = 0;
         __raw_source = in;
+        __offset = offset;
         
-        __raw_source->seekg(offset);
+        __raw_source->clear();
+        __raw_source->seekg (offset, std::ios::beg);
     }
     
     std::pair<K, V> current() const
@@ -39,12 +40,11 @@ public:
     
     uint32_t current_position() const
     {
-        return __raw_source->tellg();
+        return __offset;
     }
     
     std::pair<K, V> next()
     {
-        __buffer.shift(__bin_size_of_current);
         while(__buffer.size() < sizeof(first_head_field) + sizeof(second_head_field))
         {
             if(__raw_source->eof())
@@ -60,7 +60,6 @@ public:
         second_head_field size_header;
         const char* reader = __buffer.begin_raw() + sizeof(first_head_field);
         std::memcpy(&size_header, reader, sizeof(size_header));
-        __bin_size_of_current = (std::size_t)size_header.total_size;
         reader += sizeof(second_head_field);
         
         attribute_type_field key_att_header;
@@ -76,16 +75,18 @@ public:
         
         const char* value = reader;
         
-        std::pair<K, V> decoded_pair;
-        __unpack(key, key_att_header.size, decoded_pair.first);
-        __unpack(value, value_att_header.size, decoded_pair.second);    
+        std::pair<K, V> __current_data;
+        __unpack(key, key_att_header.size, __current_data.first);
+        __unpack(value, value_att_header.size, __current_data.second);    
         
-        return decoded_pair;
+        __offset += (std::size_t)size_header.total_size;
+        __buffer.shift((std::size_t)size_header.total_size);
+        return __current_data;
     }
     
     bool has_next() const
     {
-        return !__raw_source->eof();
+        return !__raw_source->eof() || __buffer.size() > 0;
     }
     
 private:
@@ -94,7 +95,7 @@ private:
     lsl::span __buffer;
     std::shared_ptr<std::istream> __raw_source;
     
-    std::size_t __bin_size_of_current;
+    uint32_t __offset;
     std::pair<K, V> __current_data;
     
     template<typename T>

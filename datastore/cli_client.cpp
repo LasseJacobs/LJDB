@@ -35,7 +35,7 @@ namespace frontend {
             
             std::cout << "> ";
             std::cin >> input_buffer;
-            auto tokens = tokenizer.tokenize(eval::text_iterator(input_buffer.begin(), input_buffer.end()-1));
+            auto tokens = tokenizer.tokenize(eval::text_iterator(input_buffer.begin(), input_buffer.end()));
             
             auto stmt = parser.parse(tokens, context_map);
             try

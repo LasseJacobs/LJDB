@@ -95,6 +95,12 @@ public:
         
     }
             
+    io_failure_exception(const std::exception& e) 
+            : unexpected_exception(utils::string::format("an IO operation failed because '%s'", e.what()))
+    {
+        
+    }
+            
     io_failure_exception(const std::string& cause, const std::string& io_failure) 
             : unexpected_exception(utils::string::format("%s caused by '%s'", cause, io_failure))
     {

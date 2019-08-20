@@ -19,12 +19,14 @@
 
 
 namespace eval {
-    
+
+/*    
 enum class token_class_t {
     COMMAND,
     SPECIFIER,
     ARGUMENT
 };
+ */
     
 
 class command_parser {
@@ -35,19 +37,19 @@ public:
 private:
     static const std::string LEGAL_CHARACTERS;
     
-    void parse_create_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const;
-    void parse_delete_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const;
-    void parse_select_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const;
+    void __parse_create_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const;
+    void __parse_delete_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const;
+    void __parse_select_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const;
     
-    void parse_arguments(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement, const std::string& pattern) const;
+    void __parse_arguments(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement, const std::string& pattern) const;
     
-    void parse_name_argument(const token_t& arg, prepared_statement& statement) const;
-    void parse_value_argument(const token_t& arg, prepared_statement& statement) const;
-    void get_context(const std::map<std::string, std::string>& context, prepared_statement& statement) const;
+    void __parse_name_argument(const token_t& arg, prepared_statement& statement) const;
+    void __parse_value_argument(const token_t& arg, prepared_statement& statement) const;
+    void __get_context(const std::map<std::string, std::string>& context, prepared_statement& statement) const;
     
-    int find_illegal_characters(const std::string& arg) const;
-    bool strip_outer_parenthesis(std::string& arg) const;
-    void un_escape_inner_parenthesis(std::string& arg) const;
+    int __find_illegal_characters(const std::string& arg) const;
+    bool __strip_outer_parenthesis(std::string& arg) const;
+    void __un_escape_inner_parenthesis(std::string& arg) const;
 };
 
 }

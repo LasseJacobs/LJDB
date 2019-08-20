@@ -10,6 +10,7 @@
 #include "utils.h"
 #include <assert.h>
 #include <map>     
+#include <algorithm>
 
 
 
@@ -33,30 +34,30 @@ namespace eval {
                 break;
                 
             case token_type_t::CREATE:
-                parse_create_statement(tokens, context, statement);
+                __parse_create_statement(tokens, context, statement);
                 break;
                 
             case token_type_t::DELETE: 
-                parse_delete_statement(tokens, context, statement);
+                __parse_delete_statement(tokens, context, statement);
                 break;
                 
             case token_type_t::SELECT:
-                parse_select_statement(tokens, context, statement);
+                __parse_select_statement(tokens, context, statement);
                 break;
                 
             case token_type_t::GET:
                 statement.set_command(command_t::IMPLICIT_GET);
-                parse_arguments(tokens, context, statement, "c n v");
+                __parse_arguments(tokens, context, statement, "c n v");
                 break;
                 
             case token_type_t::PUT:
                 statement.set_command(command_t::IMPLICIT_PUT);
-                parse_arguments(tokens, context, statement, "c n v v");
+                __parse_arguments(tokens, context, statement, "c n v v");
                 break;
                 
             case token_type_t::REMOVE:
                 statement.set_command(command_t::IMPLICIT_REMOVE);
-                parse_arguments(tokens, context, statement, "c n v");
+                __parse_arguments(tokens, context, statement, "c n v");
                 break;
                 
             default:
@@ -78,19 +79,19 @@ namespace eval {
         return statement;
     }
     
-    void command_parser::parse_create_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const
+    void command_parser::__parse_create_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const
     {
         token_t token = tokens.front();
         tokens.pop();
         switch (token.token_type) {
             case token_type_t::DATABASE:
                 statement.set_command(command_t::CREATE_DATABASE);
-                parse_arguments(tokens, context, statement, "n");
+                __parse_arguments(tokens, context, statement, "n");
                 return;
                 
             case token_type_t::TABLE:
                 statement.set_command(command_t::CREATE_TABLE);
-                parse_arguments(tokens, context, statement, "c n");
+                __parse_arguments(tokens, context, statement, "c n");
                 return;
             
             default:
@@ -102,19 +103,19 @@ namespace eval {
         }
     }
     
-    void command_parser::parse_delete_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const
+    void command_parser::__parse_delete_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const
     {
         token_t token = tokens.front();
         tokens.pop();
         switch (token.token_type) {
             case token_type_t::DATABASE:
                 statement.set_command(command_t::DELETE_DATABASE);
-                parse_arguments(tokens, context, statement, "n");
+                __parse_arguments(tokens, context, statement, "n");
                 return;
                 
             case token_type_t::TABLE:
                 statement.set_command(command_t::DELETE_TABLE);
-                parse_arguments(tokens, context, statement, "c n");
+                __parse_arguments(tokens, context, statement, "c n");
                 return;
             
             default:
@@ -126,14 +127,14 @@ namespace eval {
         }
     }
     
-    void command_parser::parse_select_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const
+    void command_parser::__parse_select_statement(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement) const
     {
         token_t token = tokens.front();
         tokens.pop();
         switch (token.token_type) {
             case token_type_t::DATABASE:
                 statement.set_command(command_t::SELECT_DATABASE);
-                parse_arguments(tokens, context, statement, "n");
+                __parse_arguments(tokens, context, statement, "n");
                 return;
             
             default:
@@ -145,7 +146,7 @@ namespace eval {
         }
     }
     
-    void command_parser::parse_arguments(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement, const std::string& pattern) const
+    void command_parser::__parse_arguments(std::queue<token_t>& tokens, const std::map<std::string, std::string>& context, prepared_statement& statement, const std::string& pattern) const
     {
         //TODO: this needs to get cleaned up
         unsigned int count = std::count(pattern.begin(), pattern.end(), ' ') + 1;
@@ -166,17 +167,17 @@ namespace eval {
                 case 'n':
                     next_token = tokens.front();
                     tokens.pop();
-                    parse_name_argument(next_token, statement);
+                    __parse_name_argument(next_token, statement);
                     break;
 
                 case 'v':
                     next_token = tokens.front();
                     tokens.pop();
-                    parse_value_argument(next_token, statement);
+                    __parse_value_argument(next_token, statement);
                     break;
                     
                 case 'c':
-                    get_context(context, statement);
+                    __get_context(context, statement);
                     break;
 
                 default:
@@ -194,9 +195,9 @@ namespace eval {
         }
     }
     
-    void command_parser::parse_name_argument(const token_t& arg, prepared_statement& statement) const
+    void command_parser::__parse_name_argument(const token_t& arg, prepared_statement& statement) const
     {
-        int ill_char_pos = find_illegal_characters(arg.token_value);
+        int ill_char_pos = __find_illegal_characters(arg.token_value);
         if(ill_char_pos >= 0)
         {
             statement.set_error(
@@ -209,23 +210,25 @@ namespace eval {
         statement.add_argument(arg.token_value);
     }
     
-    void command_parser::parse_value_argument(const token_t& arg, prepared_statement& statement) const
+    void command_parser::__parse_value_argument(const token_t& arg, prepared_statement& statement) const
     {
+        /*
         std::string token_value = arg.token_value;
-        if(!strip_outer_parenthesis(token_value))
+        if(!__strip_outer_parenthesis(token_value))
         {
             statement.set_error(
                     error_t::PARSING_ERROR,
-                    utils::string::format("could not properly parse string, %s", token_value)
+                    utils::string::format("could not properly parse string, `%s`", arg.token_value)
                 );
             return;
         }
-        un_escape_inner_parenthesis(token_value);
-        
-        statement.add_argument(token_value);
+        __un_escape_inner_parenthesis(token_value);
+        */
+ 
+        statement.add_argument(arg.token_value);
     }
     
-    void command_parser::get_context(const std::map<std::string, std::string>& context, prepared_statement& statement) const
+    void command_parser::__get_context(const std::map<std::string, std::string>& context, prepared_statement& statement) const
     {
         auto result = context.find("database");
         if(result == context.end())
@@ -239,13 +242,13 @@ namespace eval {
         statement.add_argument(result->second);
     }
     
-    int command_parser::find_illegal_characters(const std::string& arg) const
+    int command_parser::__find_illegal_characters(const std::string& arg) const
     {
         std::string::size_type ill_char_pos = arg.find_first_not_of(LEGAL_CHARACTERS);
         return (ill_char_pos == arg.npos) ? -1 : (int)ill_char_pos;
     }
 
-    bool command_parser::strip_outer_parenthesis(std::string& arg) const 
+    bool command_parser::__strip_outer_parenthesis(std::string& arg) const 
     {
         if(*arg.begin() == '"' || *arg.rbegin() == '"')
         {
@@ -259,9 +262,14 @@ namespace eval {
         return true;
     }
     
-    void command_parser::un_escape_inner_parenthesis(std::string& arg) const
+    void command_parser::__un_escape_inner_parenthesis(std::string& arg) const
     {
-        //arg.replace("\\"", "\"");
+        std::string::size_type i = 0;
+        while((i = arg.find("\\\"", i)) != std::string::npos) 
+        {
+            arg.replace(i, 2, "\"");
+            i += 1;
+        }
     }
 
 

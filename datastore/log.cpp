@@ -23,7 +23,7 @@
 namespace core {
         
     const std::string log::TOMBSTONE_TOKEN = "\0\0\0\0";
-    const std::ios_base::openmode log::NEW_LOG_MODE = std::ios_base::in | std::ios_base::out | std::ios_base::app | std::ios_base::binary | std::ios_base::trunc;
+    const std::ios_base::openmode log::NEW_LOG_MODE = std::ios_base::in | std::ios_base::out | std::ios_base::app | std::ios_base::binary;
     const std::ios_base::openmode log::OPEN_LOG_MODE = std::ios_base::in | std::ios_base::out | std::ios_base::app | std::ios_base::binary;
     const std::ios_base::openmode log::READ_LOG_MODE = std::ios_base::in | std::ios_base::binary;
 
@@ -57,6 +57,7 @@ namespace core {
         
         __log_file = std::make_shared<std::fstream>(filename, NEW_LOG_MODE);
         __wrt_lock = std::make_shared<std::mutex>();
+        
         if(!__log_file->is_open()) 
         {
             throw io_failure_exception("could not open table structure");
@@ -100,12 +101,13 @@ namespace core {
         data::blob encoded_pair = data_encoder.encode(std::make_pair(key, value));
         
         __wrt_lock.get()->lock();
-        size_t pre_write_index = __log_file->tellp();
         __log_file->write(encoded_pair.data, encoded_pair.length);
         if(__log_file->fail())
             throw io_failure_exception();
         
         __log_file->flush();
+        std::size_t pre_write_index = (std::size_t)__log_file->tellp() - encoded_pair.length;
+        
         __wrt_lock.get()->unlock();
         return pre_write_index;
     }
@@ -117,7 +119,7 @@ namespace core {
             value = itr.next().second;
         } 
         catch(const std::exception& e) {
-            throw io_failure_exception();
+            throw io_failure_exception(e.what());
         }
     }
     
