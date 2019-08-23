@@ -11,6 +11,7 @@
 #include "cli_client.h"
 #include "command_parser.h"
 #include "interpreter.h"
+#include "database_exceptions.h"
 
 namespace frontend {
 
@@ -42,10 +43,14 @@ namespace frontend {
             {
                 interpreter.eval(stmt, __database, context_map);
             }
+            catch(const core::expected_exception& e)
+            {
+                std::cout << "failed: " << e.what() << std::endl;
+            }
             catch(const std::exception& e)
             {
-                std::cout << "an exception occurred...\n";
-                std::cout << "CAUSE: " << e.what() << std::endl;
+                std::cerr << "an exception occurred...\n";
+                std::cerr << "CAUSE: " << e.what() << std::endl;
                 return;
             }
             

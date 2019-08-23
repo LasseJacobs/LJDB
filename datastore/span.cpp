@@ -18,7 +18,7 @@
 
 namespace lsl
 {
-    const std::size_t span::STREAM_BUFFER_SIZE = 10;
+    const std::size_t span::STREAM_BUFFER_SIZE = 128;
     const std::size_t span::DEFAULT_CAPACITY = 16;
     const float span::GROWTH_FACTOR = 1.5f;
     const float span::SHRINK_THRESHOLD = 0.1f;
