@@ -1,4 +1,4 @@
-# STL-Style Open Address Hashmap
+# LJDB database experiment project
 ## Usage
 Build and run the project, a command input field '>' shoud appear on the terminal. Input a command and see what happens!
 
