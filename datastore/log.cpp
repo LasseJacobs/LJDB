@@ -117,6 +117,7 @@ namespace core {
         try {
             data::decoder_iterator<std::string, std::string> itr(__log_file, offset);
             value = itr.next().second;
+            __log_file->clear();
         } 
         catch(const std::exception& e) {
             throw io_failure_exception(e.what());

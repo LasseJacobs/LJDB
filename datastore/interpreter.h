@@ -19,6 +19,8 @@ namespace eval {
 
 class interpreter {
 public:
+    static const std::string RESULT_PREFIX;
+    
     interpreter(std::ostream& std_out, std::ostream& err_out);
     
     void eval(const prepared_statement& statement, LJDBFacade& db, std::map<std::string, std::string>& context) const;

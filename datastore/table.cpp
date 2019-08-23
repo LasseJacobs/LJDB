@@ -85,7 +85,6 @@ namespace core {
     {
         uint32_t insert_index = __main_log.put(key, value);         
         __key_index.emplace(key, insert_index);
-
     }
     
     void table::get(const std::string& key, std::string& value) const 

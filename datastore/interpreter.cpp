@@ -12,6 +12,9 @@
 
 namespace eval {
     
+    const std::string interpreter::RESULT_PREFIX = "== ";
+
+    
     interpreter::interpreter(std::ostream& std_out, std::ostream& err_out) :
             __std_out(std_out), __err_out(err_out)
     {
@@ -73,7 +76,7 @@ namespace eval {
 
     void interpreter::print_result(const std::string& result) const 
     {
-        __std_out << "== " << result << std::endl;
+        __std_out << RESULT_PREFIX << result << std::endl;
     }
 
 }
