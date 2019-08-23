@@ -7,11 +7,11 @@ Example:
 $./LJDB
 $ > create database myDb
 $ > select database myDb
-$ \[myDb\] > create table example
-$ \[myDb\] > put example "hello" "world"
-$ \[myDb\] > get example "hello"
+$ [myDb] > create table example
+$ [myDb] > put example "hello" "world"
+$ [myDb] > get example "hello"
 $ == world
-$ \[myDb\] > exit
+$ [myDb] > exit
 
 ```
 
@@ -43,7 +43,7 @@ exit
 
 ```
 
-NOTE: " can be escaped (\")
+NOTE: " can be escaped (\\")
 
 
 ## Contributing
